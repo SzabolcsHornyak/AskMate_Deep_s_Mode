@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+    <style>
+        td, th { 
+      border: 1px solid grey;
+      padding: 5px;
+      text-align: left
+      }
+    table { 
+      table-layout: auto;
+      border: 2px solid black 
+      }
+    </style>
+    <body>
+        
+            <table>
+             {% for fieldname in fieldnames %}
+             <th> {{ fieldname }} </th>
+             {% endfor %}
+             {% for line in data_set %}
+            <tr>
+            {% for item in line %}
+             <td> {{ item }}</td>
+            {% endfor %}
+            </tr> 
+            {% endfor %}
+            </table>
+    </body>
+</html>
