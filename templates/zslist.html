@@ -7,23 +7,62 @@
 
   <style>
 body { 
-  margin: 2% 
+  margin: 2%;
+  background-color: #065c34;
+  font-family: 'Courier New', Courier, monospace
   }
 td, th { 
   border: 1px solid grey;
   padding: 5px;
-  text-align: left
+  text-align: left;
+  color: #e7fdf3
   }
+
+ th {
+     background-color: #5c062e;
+     font-weight: bold;
+ }
+
+th:hover {
+    background-color: #000000;
+    -webkit-transition: background-color 1000ms linear;
+    -ms-transition: background-color 1000ms linear;
+    transition: background-color 1000ms linear;
+    -webkit-transform:scale(1.1); /* Safari and Chrome */
+    -moz-transform:scale(1.1); /* Firefox */
+    -ms-transform:scale(1.1); /* IE 9 */
+    -o-transform:scale(1.1); /* Opera */
+    transform:scale(1.1);
+}
+
+
+ td {
+     background-color: #7c3757
+ }
+
+td:hover {
+    background-color: #5c062e;
+    -webkit-transition: background-color 1000ms linear;
+    -ms-transition: background-color 1000ms linear;
+    -webkit-transform:scale(1.1); /* Safari and Chrome */
+    -moz-transform:scale(1.1); /* Firefox */
+    -ms-transform:scale(1.1); /* IE 9 */
+    -o-transform:scale(1.1); /* Opera */
+    transform:scale(1.1);
+    transition: background-color 1000ms linear;
+}
+
 table { 
   table-layout: auto;
   border: 2px solid black 
   }
+
   </style>
   <body>
 
     <table>
       {% for fieldname in fieldnames %}
-        <th> {{ fieldname }} </th>
+        <a><th> {{ fieldname }} </th></a>
       {% endfor %}
       
       {% for line in data_set %}
@@ -46,7 +85,7 @@ table {
     </table>
 
     <a href='/new-question' class = "btn btn-default">
-      <p>Ask a question</p> <i class="glyphicon glyphicon-question-sign"></i>
+      <i class="glyphicon glyphicon-question-sign"></i><h5>Ask a question</h5>
     </a>
   
   </body>
