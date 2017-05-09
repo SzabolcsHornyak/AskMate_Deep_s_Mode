@@ -14,6 +14,7 @@ def list():
     fieldnames = ['id', 'submission_time', 'view_number', 'vote_number', 'title', 'message', 'image']
     with open('./static/data/question.csv', 'r') as qcsvfile:
         data_set = [line.split(',') for line in qcsvfile]
+        data_set = sorted(data_set, key=lambda x: x[1], reverse=True)
         for line in data_set:
             line[1] = time.ctime(int(line[1]))
             line[4] = decode_this(line[4])
