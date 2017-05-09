@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>Story {{ id }} </title>
+    </head>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+  <style>
+body { 
+  margin: 2%;
+  background-color: #065c34;
+  font-family: 'Courier New', Courier, monospace
+  }
+td, th { 
+  border: 1px solid grey;
+  padding: 5px;
+  text-align: left;
+  color: #e7fdf3
+  }
+
+ th {
+     background-color: #5c062e;
+     font-weight: bold;
+ }
+
+th:hover {
+    background-color: #000000;
+    -webkit-transition: background-color 1000ms linear;
+    -ms-transition: background-color 1000ms linear;
+    transition: background-color 1000ms linear;
+    -webkit-transform:scale(1.1); /* Safari and Chrome */
+    -moz-transform:scale(1.1); /* Firefox */
+    -ms-transform:scale(1.1); /* IE 9 */
+    -o-transform:scale(1.1); /* Opera */
+    transform:scale(1.1);
+}
+
+
+ td {
+     background-color: #7c3757
+ }
+
+td:hover {
+    background-color: #5c062e;
+    -webkit-transition: background-color 1000ms linear;
+    -ms-transition: background-color 1000ms linear;
+    -webkit-transform:scale(1.1); /* Safari and Chrome */
+    -moz-transform:scale(1.1); /* Firefox */
+    -ms-transform:scale(1.1); /* IE 9 */
+    -o-transform:scale(1.1); /* Opera */
+    transform:scale(1.1);
+    transition: background-color 1000ms linear;
+}
+
+table { 
+  table-layout: auto;
+  border: 2px solid black 
+  }
+
+  </style>
+
+  <body>
+
+    <table>
+      {% for fieldname in fieldnames %}
+        <a><th> {{ fieldname }} </th></a>
+      {% endfor %}
+
+        <tr>
+          {% for item in data_set %}
+            <td> {{ item }}</td>
+          {% endfor %}
+          <td>
+            <a href='question/{{id}}/edit' class='btn btn-default edit-button'>
+              <i class="glyphicon glyphicon-pencil"></i>
+            </a>
+          </td>
+          <td>
+            <a href='question/{{id}}/del' class='btn btn-default del-button'>
+              <i class="glyphicon glyphicon-trash"></i>
+            </a>
+          </td>
+        </tr> 
+    </table>
+
+    <a href='/new-question' class = "btn btn-default">
+      <i class="glyphicon glyphicon-question-sign"></i><h5>Ask a question</h5>
+    
+    </a>
+
+    <a href='/list' class = "btn btn-default">
+      <i class="glyphicon glyphicon-list"></i><h5>Back to the list</h5>
+    
+    </a>
+
+    <a href='/question/<int: id>/new-answer' class = "btn btn-default">
+      <i class="glyphicon glyphicon-upload"></i><h5>Submit a new answer</h5>
+    
+    </a>
+
+
+  
+  </body>
+
+</html>
