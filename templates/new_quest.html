@@ -1,0 +1,29 @@
+<form action={% if s_id %}"/question/{{s_id}}"{% else %}"/newquestion"{% endif %} method="post">
+    <div>
+        <p>
+            <h1>Add new question</h1>
+        </p>
+    </div>
+    <div>
+        <p>Question Title<br>
+            <input type="text" name="q_title" value="{{question[1]}}" required><br></p>
+
+    </div>
+    <div>
+        <p>Message<br>
+            <textarea name="q_text" rows="5" cols="20" required>{{question[2]}}</textarea></p>
+    </div>
+    <div>
+        <p>Image<br>
+            <textarea name="img" rows="5" cols="20" >{{question[3]}}</textarea></p>
+    </div>
+    <div>
+        {% if typ=='V' %} 
+                <p><input type="submit" value="UPDATE"></p> 
+        {% else %} 
+                <p><input type="submit" value="SUBMIT"></p>
+        {% endif %}
+            
+        
+    </div>
+</form>
