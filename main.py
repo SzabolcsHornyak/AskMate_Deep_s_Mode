@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect
+from flask import Flask, render_template, url_for, redirect, request
 import base64
 import time
 app = Flask(__name__, static_url_path='/static')
@@ -27,7 +27,6 @@ def read_and_decode(file):
     return data_set
 
 # ask a question: 1000
-# post an answer: 1000
 # edit a question: 400
 # delete an answer: 400
 # add image: 500
@@ -56,6 +55,36 @@ def question(id):
             ans[5] = decode_this(ans[5])
 
         return render_template('display.html', line=line, fieldnames=FIELDNAMES, answers=answers)
+
+
+# post an answer: 1000
+@app.route("/question/<question_id>/new-answer", methods=['GET', 'POST'])
+def post_answer(question_id):
+
+    if request.method == 'GET':
+        with open('./static/data/question.csv', 'r') as file:
+            question_ = [line.split(',') for line in file if line.split(',')[0] == question_id][0]
+            question_title = base64.b64decode(question_[4]).decode('utf-8')
+            question_msg = base64.b64decode(question_[5]).decode('utf-8')
+
+        return render_template('a_answer.html', question_id=question_id, question_title=question_title, question_msg=question_msg)
+
+    if request.method == 'POST':
+        with open('./static/data/answer.csv', 'a+') as file:
+            _id = str(len(file.readlines()))  # TODO _id gen last line id + 2
+            submission_time = str(round(time.time()))
+            vote_number = '0'  # can it be minus?
+            message = str(encode_this(request.form['answer_message']))
+            image = ''  # TODO
+            question_id = str(question_id)
+
+            x = [_id, submission_time, vote_number, question_id, message, image]
+
+            #x = list(map(str, y))
+            answer_data = ','.join(x)
+            file.write(answer_data + "\n")
+
+        return redirect(url_for('question', id=_id))
 
 
 # delete question: 600
