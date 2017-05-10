@@ -3,6 +3,7 @@ import base64
 import time
 app = Flask(__name__, static_url_path='/static')
 
+
 def load_question():
     fieldnames = ['id', 'submission_time', 'view_number', 'vote_number', 'title', 'message', 'image']
     with open('./static/data/question.csv', 'r') as qcsvfile:
