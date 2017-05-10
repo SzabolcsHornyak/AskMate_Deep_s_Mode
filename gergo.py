@@ -8,8 +8,8 @@ def decode_this(string):
     return base64.b64decode(string).decode('utf-8')
 
 
-@app.route('/question/<int:id>')
-def question(id):
+@app.route('/question/<int:question_id>')
+def question(question_id):
     fieldnames = ['id', 'submission_time', 'view_number', 'vote_number', 'title', 'message', 'image', 'edit', 'delete']
     with open('./static/data/question.csv', 'r') as qcsvfile:
         data_set = [line.split(',') for line in qcsvfile.readlines()]
@@ -19,9 +19,9 @@ def question(id):
             line[5] = decode_this(line[5])
             line[6] = decode_this(line[6])
 
-        data_set = data_set[id]
+        line = data_set[question_id]
 
-        return render_template('display.html', data_set=data_set, fieldnames=fieldnames)
+        return render_template('display.html', line=line, fieldnames=fieldnames)
 
 
 def main():

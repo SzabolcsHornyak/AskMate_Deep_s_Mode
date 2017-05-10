@@ -2,7 +2,7 @@
 <html>
 
     <head>
-        <title>Story {{ id }} </title>
+        <title>Story {{ question_id }} </title>
     </head>
 
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -69,16 +69,16 @@ table {
       {% endfor %}
 
         <tr>
-          {% for item in data_set %}
-            <td> {{ item }}</td>
+          {% for item in line %}
+            <td> {{ item }} </td>
           {% endfor %}
           <td>
-            <a href='question/{{id}}/edit' class='btn btn-default edit-button'>
+            <a href='question/{{line[0]}}/edit' class='btn btn-default edit-button'>
               <i class="glyphicon glyphicon-pencil"></i>
             </a>
           </td>
           <td>
-            <a href='question/{{id}}/del' class='btn btn-default del-button'>
+            <a href='question/{{line[0]}}/del' class='btn btn-default del-button'>
               <i class="glyphicon glyphicon-trash"></i>
             </a>
           </td>
@@ -95,7 +95,7 @@ table {
     
     </a>
 
-    <a href='/question/<int: id>/new-answer' class = "btn btn-default">
+    <a href='/question/{{question_id}}/new-answer' class = "btn btn-default">
       <i class="glyphicon glyphicon-upload"></i><h5>Submit a new answer</h5>
     
     </a>
