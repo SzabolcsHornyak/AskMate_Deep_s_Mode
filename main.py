@@ -119,11 +119,11 @@ def post_answer(question_id):
 
             x = [_id, submission_time, vote_number, question_id, message, image]
 
-            #x = list(map(str, y))
+            # x = list(map(str, y))
             answer_data = ','.join(x)
             file.write(answer_data + "\n")
 
-        return redirect(url_for('question', id=_id))
+        return redirect(url_for('question', id_=question_id))
 
 
 # delete question: 600
@@ -155,7 +155,7 @@ def vote(question_id, vote):
         for line in data:
             file.write(','.join(line))
 
-    return redirect(url_for('question', id=question_id))
+    return redirect(url_for('question', id_=question_id))
 
 
 def main():
