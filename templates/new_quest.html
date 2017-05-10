@@ -1,21 +1,29 @@
-<form action={% if s_id %}"/question/{{s_id}}"{% else %}"/newquestion"{% endif %} method="post">
+<form action={% if qid %}"/question/{{qid}}"{% else %}"/newquestion"{% endif %} method="post">
     <div>
         <p>
-            <h1>Add new question</h1>
+            {% if typ=='V' %} 
+                <h1>Edit question</h1> 
+            {% else %} 
+                <h1>Add new question</h1>
+        {% endif %}
         </p>
     </div>
     <div>
         <p>Question Title<br>
-            <input type="text" name="q_title" value="{{question[1]}}" required><br></p>
+            <input type="text" name="q_title" value="{{data[4]}}" size="100" required><br></p>
 
     </div>
     <div>
         <p>Message<br>
-            <textarea name="q_text" rows="5" cols="20" required>{{question[2]}}</textarea></p>
+            <textarea name="q_text" rows="15" cols="100" required>{{data[5]}}</textarea></p>
     </div>
     <div>
         <p>Image<br>
-            <textarea name="img" rows="5" cols="20" >{{question[3]}}</textarea></p>
+            <input type="text" name="q_img" size="70" value="{{data[6]}}"><br>
+        <p>
+            {% if data[6] %}
+            <img src="/static/{{data[6]}}" style="max-width: 200px">
+            {% endif %}
     </div>
     <div>
         {% if typ=='V' %} 
