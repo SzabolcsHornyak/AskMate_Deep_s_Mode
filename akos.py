@@ -8,14 +8,6 @@ app = Flask(__name__, static_url_path='/static')
 def post_answer(question_id):
 
     if request.method == 'GET':
-        #    with open('./static/answer.csv', 'r') as file:
-        #        all_answers = [line.split(',') for line in file]
-
-        #    answers = [line for line in all_answers if line[3] == question_id]
-        #
-        #    ^  should the answers be displayed with the question as well? ^
-        # if so, shouldn't this be done on the question details page?
-
         with open('./static/data/question.csv', 'r') as file:
             question = [line.split(',') for line in file if line.split(',')[0] == question_id][0]
             question_title = base64.b64decode(question[4]).decode('utf-8')
@@ -38,14 +30,14 @@ def post_answer(question_id):
         return "No errors i guess."  # - the fuck should it return? :) details page of the question mb?
 
 
-@app.route('/question/<question_id>/vote/<vote>')
+@app.route('/question/<question_id>/<vote>')
 def vote(question_id, vote):
     with open('./static/data/question.csv', 'r+') as file:
         data = file.readlines()
         file.seek(0)
-        if vote == 'up':
+        if vote == 'vote-up':
             data[question_id][3] += 1
-        elif vote == 'down':
+        elif vote == 'vote-down':
             data[question_id][3] -= 1
 
         file.write(data)
