@@ -73,20 +73,22 @@ table {
             <td> {{ item }} </td>
           {% endfor %}
           <td>
-            <a href='./{{line[0]}}/edit' class='btn btn-default edit-button'>
+            <a href='{{ line[0] }}/edit' class='btn btn-default edit-button'>
               <i class="glyphicon glyphicon-pencil"></i>
             </a>
           </td>
           <td>
-            <a href='./{{line[0]}}/del' class='btn btn-default del-button'>
-              <i class="glyphicon glyphicon-trash"></i>
-            </a>
+            <form action="{{ line[0] }}/del" method="POST">
+              <button type="submit" class='btn btn-default del-button'>
+                <i class="glyphicon glyphicon-trash"></i>
+              </button>  
+            </form>
           </td>
           <td>
-            <a href='{{line[0]}}/vote-up' class='btn btn-default del-button'>
+            <a href='{{ line[0] }}/vote-up' class='btn btn-default del-button'>
               <i class="glyphicon glyphicon-thumbs-up"></i>
             </a>
-            <a href='{{line[0]}}/vote-down' class='btn btn-default del-button'>
+            <a href='{{ line[0] }}/vote-down' class='btn btn-default del-button'>
               <i class="glyphicon glyphicon-thumbs-down"></i>
             </a>
           </td>
@@ -103,7 +105,7 @@ table {
     
     </a>
 
-    <a href='/{{question_id}}/new-answer' class = "btn btn-default">
+    <a href='/question/{{question_id}}/new-answer' class = "btn btn-default">
       <i class="glyphicon glyphicon-upload"></i><h5>Submit a new answer</h5>
     
     </a>
