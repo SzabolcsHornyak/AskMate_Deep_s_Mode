@@ -24,7 +24,6 @@ def encode_this(string):
 def load_question():
     with open('./static/data/question.csv', 'r') as qcsvfile:
         data_set = [line.split(',') for line in qcsvfile]
-        #data_set = sorted(data_set, key=lambda x: x[1], reverse=True)
         for i in range(len(data_set)):
             for j in range(len(data_set[i])):
                 if j > 3:
@@ -60,7 +59,6 @@ def new_question():
         datas.append(request.form['q_text'])
         data_set.append(datas)
         write_questions(data_set)
-        #return redirect(url_for('list_page')) #LISTÁZÁS
     return render_template('new_quest.html', data=[])
 
 
@@ -69,19 +67,23 @@ def qestion_view(qid=None):
     datas = load_question()
     data_tmp = []
     if request.method == 'POST':
-        secure_filename = ''
+        secure_path = ''
+        img_file = request.form['q_img']
         filex = request.files['file']
         if filex.filename != '':
             if filex:
                 filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
-                secure_filename = 'images/'+filex.filename
+                secure_path = 'images/'+secure_filename(filex.filename)
+        if secure_path != '':
+            if img_file != secure_path:
+                pass
+                #os.remove(img_file)
         for i in range(len(datas)):
             if datas[i][0] == qid:
                 datas[i][4] = request.form['q_title']
                 datas[i][5] = request.form['q_text']
-                datas[i][6] = request.form['q_img']
-        if secure_filename != '':
-            pass
+                datas[i][6] = img_file
+        write_questions(datas)
         data_tmp = datas[int(qid)]
     else:
         for i in range(len(datas)):
