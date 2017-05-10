@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import base64
 import time
 app = Flask(__name__, static_url_path='/static')
@@ -23,10 +23,34 @@ def read_and_decode(file):
     return data_set
 
 
-@app.route('/question/<int:id>')
-def question(id):
-    line = read_and_decode('./static/data/question.csv')[id]
+@app.route('/')
+@app.route('/list')
+def list():
+    data_set = read_and_decode('./static/data/question.csv')
+    return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES)
+
+
+@app.route('/question/<int:question_id>')
+def question(question_id):
+    line = read_and_decode('./static/data/question.csv')[question_id]
     return render_template('display.html', line=line, fieldnames=FIELDNAMES)
+
+
+@app.route('/question/<int:question_id>/del', methods=["GET", "POST"])
+def delete(question_id):
+    if request.method == "POST":
+        data_set = read_and_decode('./static/data/question.csv')
+
+        with open('./static/data/question.csv', 'w') as qcsvfile:
+            for line in data_set:
+                if line[0] != question_id:
+                    a = ",".join(line)
+                    qcsvfile.write(str(a))
+
+        data_set = read_and_decode('./static/data/question.csv')
+        return redirect(url_for('list'))
+
+# return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES)
 
 
 def main():

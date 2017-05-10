@@ -30,9 +30,9 @@ def list():
     return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES)
 
 
-@app.route('/question/<int:id>')
-def question(id):
-        line = read_and_decode('./static/data/question.csv')[id]
+@app.route('/question/<int:question_id>')
+def question(question_id):
+        line = read_and_decode('./static/data/question.csv')[question_id]
         return render_template('display.html', line=line, fieldnames=FIELDNAMES)
 
 
