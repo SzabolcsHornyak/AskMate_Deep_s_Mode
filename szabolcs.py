@@ -1,12 +1,18 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_from_directory
+from werkzeug.utils import secure_filename
 import base64
 import csv
 import time
+import os
 
 app = Flask(__name__, static_url_path='/static')
+UPLOAD_FOLDER = 'static/images'
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-<<<<<<< HEAD
 def decode_this(string):
     return base64.b64decode(string).decode('utf-8')
 
@@ -15,8 +21,6 @@ def encode_this(string):
     return base64.b64encode(string.encode('utf-8')).decode('utf-8')
 
 
-=======
->>>>>>> 23b36850d1a8c6891d0ba0cfd547372e133f7bb1
 def load_question():
     with open('./static/data/question.csv', 'r') as qcsvfile:
         data_set = [line.split(',') for line in qcsvfile]
@@ -65,12 +69,19 @@ def qestion_view(qid=None):
     datas = load_question()
     data_tmp = []
     if request.method == 'POST':
+        secure_filename = ''
+        filex = request.files['file']
+        if filex.filename != '':
+            if filex:
+                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
+                secure_filename = 'images/'+filex.filename
         for i in range(len(datas)):
             if datas[i][0] == qid:
                 datas[i][4] = request.form['q_title']
                 datas[i][5] = request.form['q_text']
                 datas[i][6] = request.form['q_img']
-        write_questions(datas)
+        if secure_filename != '':
+            pass
         data_tmp = datas[int(qid)]
     else:
         for i in range(len(datas)):
