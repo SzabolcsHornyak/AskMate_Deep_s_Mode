@@ -6,6 +6,7 @@ import time
 app = Flask(__name__, static_url_path='/static')
 
 
+<<<<<<< HEAD
 def decode_this(string):
     return base64.b64decode(string).decode('utf-8')
 
@@ -14,6 +15,8 @@ def encode_this(string):
     return base64.b64encode(string.encode('utf-8')).decode('utf-8')
 
 
+=======
+>>>>>>> 23b36850d1a8c6891d0ba0cfd547372e133f7bb1
 def load_question():
     with open('./static/data/question.csv', 'r') as qcsvfile:
         data_set = [line.split(',') for line in qcsvfile]
