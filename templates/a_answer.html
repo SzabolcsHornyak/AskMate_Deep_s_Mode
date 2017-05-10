@@ -12,7 +12,7 @@
     <p>{{ question_msg }}</p><br>
     
     <form action="/question/{{question_id}}/new-answer" method="post">
-    <textarea name="answer_message" style="resize:none" rows=5 cols=50></textarea><br>
+    <textarea minlength="10" name="answer_message" style="resize:none" rows=5 cols=50></textarea><br>
     <input type="submit" value="Add answer">
     </form>
 
