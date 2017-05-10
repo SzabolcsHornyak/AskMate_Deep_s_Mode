@@ -32,8 +32,8 @@ def list():
 
 @app.route('/question/<int:id>')
 def question(id):
-        question = read_and_decode('./static/data/question.csv')[id]
-        return render_template('display.html', data_set=question, fieldnames=FIELDNAMES)
+        line = read_and_decode('./static/data/question.csv')[id]
+        return render_template('display.html', line=line, fieldnames=FIELDNAMES)
 
 
 def main():
