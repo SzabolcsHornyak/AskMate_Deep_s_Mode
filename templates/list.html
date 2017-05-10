@@ -56,17 +56,26 @@ table {
   table-layout: auto;
   border: 2px solid black 
   }
-th { color: black}
+
+.astext {
+    background:none;
+    border:none;
+    margin:0;
+    padding:0;
+}
   </style>
   <body>
 
     <table>
       {% for fieldname in fieldnames %}
+        {% if fieldnames.index(fieldname) in range(0,4) %}
         <th>
-
           <form action="/list" method="GET">
               <input type="hidden" name="{{ fieldname }}" value="{{ dir }}" /> 
-              <button type="submit" {{ fieldname }}> </button></form></th>
+              <button class="astext" type="submit" > {{ fieldname }} </button></form></th>
+          {% else %}
+          <th> {{ fieldname }} </th>
+          {% endif %}
       {% endfor %}
       
       {% for line in data_set %}
