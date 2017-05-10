@@ -1,4 +1,6 @@
 ./vscode
+/static/data/question.csv
+
 # Created by https://www.gitignore.io/api/python,visualstudiocode
 
 ### Python ###
