@@ -38,14 +38,14 @@ def post_answer(question_id):
         return "No errors i guess."  # - the fuck should it return? :) details page of the question mb?
 
 
-@app.route('/question/<question_id>/<vote>')
-def vote_up(question_id, vote):
+@app.route('/question/<question_id>/vote/<vote>')
+def vote(question_id, vote):
     with open('./static/data/question.csv', 'r+') as file:
         data = file.readlines()
         file.seek(0)
-        if vote == 'vote_up':
+        if vote == 'up':
             data[question_id][3] += 1
-        elif vote == 'vote_down':
+        elif vote == 'down':
             data[question_id][3] -= 1
 
         file.write(data)
