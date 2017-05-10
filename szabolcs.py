@@ -76,8 +76,8 @@ def qestion_view(qid=None):
                 secure_path = 'images/'+secure_filename(filex.filename)
         if secure_path != '':
             if img_file != secure_path:
-                pass
-                #os.remove(img_file)
+                os.remove('static/' + img_file)
+                img_file = secure_path
         for i in range(len(datas)):
             if datas[i][0] == qid:
                 datas[i][4] = request.form['q_title']
