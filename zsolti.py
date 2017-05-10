@@ -28,6 +28,7 @@ def read_and_decode(file):
 def list():
     query_string = request.query_string.decode('utf-8').split('=')
     data_set = read_and_decode('./static/data/question.csv')
+    next_ = 'asc'
     try:
         pos = FIELDNAMES.index(query_string[0])
     except ValueError:
@@ -44,7 +45,7 @@ def list():
     except ValueError:
         dir_ = True
     except IndexError:
-        return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES)
+        return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES, dir=next_)
 
     try:
         data_set = sorted(data_set, key=lambda x: int(x[pos]), reverse=dir_)
