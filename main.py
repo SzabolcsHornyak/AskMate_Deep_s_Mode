@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, url_for, redirect
 import base64
 import time
 app = Flask(__name__, static_url_path='/static')
@@ -9,6 +9,10 @@ FIELDNAMES = ['id', 'submission_time', 'view_number', 'vote_number', 'title', 'm
 
 def decode_this(string):
     return base64.b64decode(string).decode('utf-8')
+
+
+def encode_this(string):
+    return base64.b64encode(string.encode('utf-8')).decode('utf-8')
 
 
 def read_and_decode(file):
@@ -30,10 +34,38 @@ def list():
     return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES)
 
 
-@app.route('/question/<int:question_id>')
-def question(question_id):
-        line = read_and_decode('./static/data/question.csv')[question_id]
-        return render_template('display.html', line=line, fieldnames=FIELDNAMES)
+@app.route('/question/<int:id>')
+def question(id):
+        line = read_and_decode('./static/data/question.csv')[id]
+        with open('./static/data/answer.csv', 'r') as file:
+            all_answers = [line.split(',') for line in file]
+
+        answers = [line for line in all_answers if line[3] == id]
+
+        for ans in answers:
+            ans[4] = decode_this(ans[4])
+            ans[5] = decode_this(ans[5])
+
+        return render_template('display.html', line=line, fieldnames=FIELDNAMES, answers=answers)
+
+
+@app.route('/question/<question_id>/<vote>')
+def vote(question_id, vote):
+    question_id = int(question_id)
+
+    with open('./static/data/question.csv', 'r+') as file:
+        data = [line.split(',') for line in file.readlines()]
+
+        if vote == 'vote-up':
+            data[question_id][3] = str(int(data[question_id][3]) + 1)
+        elif vote == 'vote-down':
+            data[question_id][3] = str(int(data[question_id][3]) - 1)
+
+        file.seek(0)
+        for line in data:
+            file.write(','.join(line))
+
+    return redirect(url_for('question', id=question_id))
 
 
 def main():
