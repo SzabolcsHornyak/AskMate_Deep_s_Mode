@@ -26,7 +26,26 @@ def read_and_decode(file):
             line[6] = decode_this(line[6])
     return data_set
 
-# ask a question: 1000
+
+def write_qcsv(question_data):
+    with open('./static/data/question.csv', 'a') as qcsvfile:
+        qcsvfile.write(question_data+'\n')
+
+
+def id_gen():
+    data_set = read_and_decode('./static/data/question.csv')
+    return str(int(data_set[-1][0]) + 1)
+
+# TODO
+# werkzeug.routing.BuildError when trying to vote for a question on question/1/vote-down // vote-up
+# can't submit new answer
+# can't del question from single question view
+# can't edit question from single question view
+# can't see answeres tied to specific question
+# list sort buttons not working for some reason
+# problem with id generation
+# to tired to continue
+
 # edit a question: 400
 # delete an answer: 400
 # add image: 500
@@ -41,20 +60,40 @@ def list():
     return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES)
 
 
+# ask a question: 1000
+@app.route('/newquestion', methods=['POST', 'GET'])
+def new_question():
+    if request.method == 'POST':
+        question_data = []
+        new_id = id_gen()
+        question_data.append(new_id)
+        question_data.append(str(round(time.time())))
+        question_data.append('0')  # view_number
+        question_data.append('0')  # vote_number
+        question_title = encode_this(str(request.form['q_title']))
+        question_data.append(str(question_title))
+        question_message = encode_this(str(request.form['q_text']))
+        question_data.append(str(question_message))
+        question_data = ','.join(question_data)+','  # PICTURE PROBLEM!
+        write_qcsv(question_data)
+        return redirect(url_for('list'))
+    return render_template('new_quest.html', data=[])
+
+
 # display a question: 1000
-@app.route('/question/<int:id>')
-def question(id):
-        line = read_and_decode('./static/data/question.csv')[id]
+@app.route('/question/<int:id_>')
+def question(id_):
+        line = read_and_decode('./static/data/question.csv')[id_]
         with open('./static/data/answer.csv', 'r') as file:
             all_answers = [line.split(',') for line in file]
 
-        answers = [line for line in all_answers if line[3] == id]
+        answers = [line for line in all_answers if line[3] == id_]
 
         for ans in answers:
             ans[4] = decode_this(ans[4])
             ans[5] = decode_this(ans[5])
 
-        return render_template('display.html', line=line, fieldnames=FIELDNAMES, answers=answers)
+        return render_template('display.html', line=line, fieldnames=FIELDNAMES, answers=answers, question_id=id_)
 
 
 # post an answer: 1000
