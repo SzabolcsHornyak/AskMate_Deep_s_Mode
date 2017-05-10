@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import base64
 import time
 app = Flask(__name__, static_url_path='/static')
@@ -39,18 +39,12 @@ def question(question_id):
 @app.route('/question/<int:question_id>/del', methods=["GET", "POST"])
 def delete(question_id):
     if request.method == "POST":
-        data_set = read_and_decode('./static/data/question.csv')
-
+        with open('./static/data/question.csv', 'r') as qcsvfile:
+            data_set = [line for line in qcsvfile if int(line[0]) != question_id]
         with open('./static/data/question.csv', 'w') as qcsvfile:
             for line in data_set:
-                if line[0] != question_id:
-                    a = ",".join(line)
-                    qcsvfile.write(str(a))
-
-        data_set = read_and_decode('./static/data/question.csv')
+                qcsvfile.write(line)
         return redirect(url_for('list'))
-
-# return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES)
 
 
 def main():

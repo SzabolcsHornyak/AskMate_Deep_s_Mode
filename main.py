@@ -26,7 +26,15 @@ def read_and_decode(file):
             line[6] = decode_this(line[6])
     return data_set
 
+# ask a question: 1000
+# post an answer: 1000
+# edit a question: 400
+# delete an answer: 400
+# add image: 500
 
+
+# list questions: 1000
+# sort questions: 600
 @app.route('/')
 @app.route('/list')
 def list():
@@ -34,6 +42,7 @@ def list():
     return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES)
 
 
+# display a question: 1000
 @app.route('/question/<int:id>')
 def question(id):
         line = read_and_decode('./static/data/question.csv')[id]
@@ -49,6 +58,19 @@ def question(id):
         return render_template('display.html', line=line, fieldnames=FIELDNAMES, answers=answers)
 
 
+# delete question: 600
+@app.route('/question/<int:question_id>/del', methods=["GET", "POST"])
+def delete(question_id):
+    if request.method == "POST":
+        with open('./static/data/question.csv', 'r') as qcsvfile:
+            data_set = [line for line in qcsvfile if int(line[0]) != question_id]
+        with open('./static/data/question.csv', 'w') as qcsvfile:
+            for line in data_set:
+                qcsvfile.write(line)
+        return redirect(url_for('list'))
+
+
+# vote: 700
 @app.route('/question/<question_id>/<vote>')
 def vote(question_id, vote):
     question_id = int(question_id)
