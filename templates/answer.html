@@ -14,8 +14,8 @@
     <p>{{ question_msg }}</p><br>
     
     <form action="/question/{{question_id}}/new-answer" method="post">
-    <textarea minlength="10" name="answer_message" style="resize:none" rows=5 cols=50></textarea><br>
-    <input type="submit" value="Add answer">
+        <textarea minlength="10" name="answer_message" style="resize:none" rows=5 cols=50></textarea><br>
+        <input type="submit" value="Add answer">
     </form>
     <a href='/question/{{question_id}}' class = "btn btn-default">
       <i class="glyphicon glyphicon-list"></i><h5>Back to the question</h5>

@@ -143,9 +143,9 @@ def new_question():
         question_data_list.append(str(round(time.time())))  # submission time
         question_data_list.append('0')  # view_number
         question_data_list.append('0')  # vote_number
-        question_title = encode_this(str(request.form['q_title']))
+        question_title = encode_this(str(request.form['question_title']))
         question_data_list.append(str(question_title))  # question title
-        question_message = encode_this(str(request.form['q_text']))
+        question_message = encode_this(str(request.form['question_text']))
         question_data_list.append(str(question_message))  # question message
         img_file = ''
         filex = request.files['file']
@@ -199,7 +199,6 @@ def post_answer(question_id):
     The answer must be at least 10 characters long. (/question/<question_id>/new-answer).
     There should be a link at each question detail page that leads to this page.
     '''
-
     if request.method == 'GET':
         data_set = read_and_decode('./static/data/question.csv')
         question_line = find_line_by_id(data_set, question_id)
@@ -279,7 +278,7 @@ def vote_answer(question_id, answer_id, vote):
     return redirect(url_for('question', question_id=question_id))
 
 
-@app.route('/question/<int:question_id>/<vote>')
+@app.route('/question/<int:question_id>/vote/<vote>')
 def vote_question(question_id, vote):
     '''
     vote: 700
