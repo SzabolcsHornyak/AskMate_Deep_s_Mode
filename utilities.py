@@ -59,7 +59,7 @@ def id_generator(file_path):
     adds 1 to it and returns the value as a string.
     '''
     data_set = just_read(file_path)
-    return str(int(data_set[-1][0]) + 1)
+    return str(int(data_set[-1][0]) + 1) if len(data_set) > 0 else "0"
 
 
 def find_line_by_id(data_set, question_id):

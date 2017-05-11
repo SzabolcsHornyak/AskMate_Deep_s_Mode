@@ -69,7 +69,6 @@ def new_question():
         question_data_list.append(str(question_title))  # question title
         question_message = utilities.encode_this(str(request.form['question_text']))
         question_data_list.append(str(question_message))  # question message
-        img_file = ''
         filex = request.files['file']
         if filex.filename != '':
             if filex:
@@ -134,8 +133,15 @@ def post_answer(question_id):
         submission_time = str(round(time.time()))
         vote_number = '0'  # can it be minus?
         message = str(utilities.encode_this(request.form['answer_message']))
-        image = ''  # TODO
-        answer_data_list = [answer_id, submission_time, vote_number, question_id, message, image]
+        filex = request.files['file']
+        if filex.filename != '':
+            if filex:
+                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
+                img_file = 'images/'+secure_filename(filex.filename)
+                answer_image = utilities.encode_this(img_file)
+        else:
+            answer_image = ""
+        answer_data_list = [answer_id, submission_time, vote_number, question_id, message, answer_image]
         answer_data_string = ','.join(answer_data_list)
         utilities.append_to_csv(answer_data_string, './static/data/answer.csv')
         return redirect(url_for('question', question_id=question_id))
