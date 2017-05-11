@@ -6,7 +6,6 @@
 
 <body>
 
-    <!-- FANCY AS FUCK -->
     <h1>Add an answer</h1>
     <h2>{{ question_title }}</h2>
     <p>{{ question_msg }}</p><br>
@@ -15,6 +14,9 @@
     <textarea minlength="10" name="answer_message" style="resize:none" rows=5 cols=50></textarea><br>
     <input type="submit" value="Add answer">
     </form>
+    <a href='/question/{{question_id}}' class = "btn btn-default">
+      <i class="glyphicon glyphicon-list"></i><h5>Back to the question</h5>
+    </a>
 
 </body>
 </html>
