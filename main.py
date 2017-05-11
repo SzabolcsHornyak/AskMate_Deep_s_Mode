@@ -15,6 +15,11 @@ def encode_this(string):
     return base64.b64encode(string.encode('utf-8')).decode('utf-8')
 
 
+def just_read(file):
+    with open(file, 'r') as qcsvfile:
+        return [line.split(',') for line in qcsvfile]
+
+
 def read_and_decode(file):
     with open(file, 'r') as qcsvfile:
         data_set = [line.split(',') for line in qcsvfile]
@@ -33,19 +38,11 @@ def write_qcsv(question_data):
 
 
 def id_gen():
-    data_set = read_and_decode('./static/data/question.csv')
+    data_set = just_read('./static/data/question.csv')
     return str(int(data_set[-1][0]) + 1)
 
 # TODO
-# werkzeug.routing.BuildError when trying to vote for a question on question/1/vote-down // vote-up
-# can't submit new answer
-# can't del question from single question view
-# can't edit question from single question view
-# can't see answeres tied to specific question
-# list sort buttons not working for some reason
-# problem with id generation
-# to tired to continue
-
+# overall testing and bugfixes
 # edit a question: 400
 # delete an answer: 400
 # add image: 500
@@ -56,8 +53,32 @@ def id_gen():
 @app.route('/')
 @app.route('/list')
 def list():
+    query_string = request.query_string.decode('utf-8').split('=')
     data_set = read_and_decode('./static/data/question.csv')
-    return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES)
+    next_ = 'asc'
+    try:
+        pos = FIELDNAMES.index(query_string[0])
+    except ValueError:
+        pos = 1
+    try:
+        if str(query_string[1]) == 'asc':
+            dir_ = False
+            next_ = 'dsc'
+        elif str(query_string[1]) == 'dsc':
+            dir_ = True
+            next_ = 'asc'
+        else:
+            return '404.html'
+    except ValueError:
+        dir_ = True
+    except IndexError:
+        return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES, dir=next_)
+
+    try:
+        data_set = sorted(data_set, key=lambda x: int(x[pos]), reverse=dir_)
+    except ValueError:
+        pass
+    return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES, dir=next_)
 
 
 # ask a question: 1000
@@ -87,7 +108,7 @@ def question(id_):
         with open('./static/data/answer.csv', 'r') as file:
             all_answers = [line.split(',') for line in file]
 
-        answers = [line for line in all_answers if line[3] == id_]
+        answers = [line for line in all_answers if int(line[3]) == id_]
 
         for ans in answers:
             ans[4] = decode_this(ans[4])
@@ -119,11 +140,11 @@ def post_answer(question_id):
 
             x = [_id, submission_time, vote_number, question_id, message, image]
 
-            # x = list(map(str, y))
+            #x = list(map(str, y))
             answer_data = ','.join(x)
             file.write(answer_data + "\n")
 
-        return redirect(url_for('question', id_=question_id))
+        return redirect(url_for('question', id_=_id))
 
 
 # delete question: 600
@@ -155,7 +176,7 @@ def vote(question_id, vote):
         for line in data:
             file.write(','.join(line))
 
-    return redirect(url_for('question', id_=question_id))
+    return redirect(url_for('question', id=question_id))
 
 
 def main():
