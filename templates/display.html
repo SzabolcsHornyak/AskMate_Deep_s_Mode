@@ -1,51 +1,26 @@
 <!DOCTYPE html>
-<html>
-
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta http-equiv="X-UA-Compatible" content="ie=edge">
-      <title>Story {{ question_id }} </title>
-    </head>
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-
-  <style>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Question</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<style>
 body { 
   margin: 2%;
   background-color: #065c34;
   font-family: 'Courier New', Courier, monospace
   }
-td, th { 
-  border: 1px solid grey;
-  padding: 5px;
-  text-align: left;
-  color: #e7fdf3
-  }
 
- th {
-     background-color: #5c062e;
-     font-weight: bold;
- }
-
-th:hover {
-    background-color: #000000;
-    -webkit-transition: background-color 1000ms linear;
-    -ms-transition: background-color 1000ms linear;
-    transition: background-color 1000ms linear;
-    -webkit-transform:scale(1.1); /* Safari and Chrome */
-    -moz-transform:scale(1.1); /* Firefox */
-    -ms-transform:scale(1.1); /* IE 9 */
-    -o-transform:scale(1.1); /* Opera */
-    transform:scale(1.1);
+.question-main {
+    background-color: #7c3757;
+    color:white;
+    border: 1px solid grey;
+    padding:20px;
 }
 
-
- td {
-     background-color: #7c3757
- }
-
-td:hover {
+.question-main:hover {
     background-color: #5c062e;
     -webkit-transition: background-color 1000ms linear;
     -ms-transition: background-color 1000ms linear;
@@ -57,101 +32,176 @@ td:hover {
     transition: background-color 1000ms linear;
 }
 
-table { 
-  table-layout: auto;
-  border: 2px solid black 
-  }
+.question-data {
+    width: 100%;
+    height: 5%;
+    padding: 50px;
+    border: 1px solid grey;
+    color:white;
+    background-color: #5c062e;
+}
 
-  </style>
+.question-buttons {
 
-  <body>
+    margin-left: -40px;
+}
 
-    <table>
-      {% for fieldname in fieldnames %}
-        <a><th> {{ fieldname }} </th></a>
-      {% endfor %}
-        <tr>
-          {% for item in line %}
-            {% if loop.index==7 %}
-            <td><img src="/static/{{item}}" style="max-width: 200px; max-height: 150px;"></td>
-            {% else %}
-            <td> {{ item }}</td>
-            {% endif %}
-          {% endfor %}
-          <td>
-            <a href='{{ line[0] }}/edit' class='btn btn-default edit-button'>
-              <i class="glyphicon glyphicon-pencil"></i>
-            </a>
-          </td>
-          <td>
-            <form action="{{ line[0] }}/del" method="POST">
-              <button type="submit" class='btn btn-default del-button'>
-                <i class="glyphicon glyphicon-trash"></i>
-              </button>  
-            </form>
-          </td>
-          <td>
-            <a href='{{ line[0] }}/vote/vote-up' class='btn btn-default del-button'>
-              <i class="glyphicon glyphicon-thumbs-up"></i>
-            </a>
-            <a href='{{ line[0] }}/vote/vote-down' class='btn btn-default del-button'>
-              <i class="glyphicon glyphicon-thumbs-down"></i>
-            </a>
-          </td>
-        </tr> 
-    </table>
-    <br><br>
-    <table>
-      <tr>
-        <th>ID</th>
-        <th>Submission time</th>
-        <th>Votes</th>
-        <th>Question ID</th>
-        <th>Message</th>
-        <th>Image</th>
-        <th>Vote</th>
-        <th>Delete</th>
-      </tr>
-      {% for answer in answers %}
-        <tr>
-          {% for item in answer %}
-            {% if loop.index==6 %}
-            <td><img src="/static/{{item}}" style="max-width: 200px; max-height: 150px;"></td>
-            {% else %}
-            <td> {{ item }}</td>
-            {% endif %}
-          {% endfor %}
-          <td>
+.question-button {
+    height: 25%;
+}
+
+
+.answer-main {
+  background-color: #7c3757;
+  color:white;
+  padding: 20px;
+  margin: 10px 30px 10px 30px;
+
+}
+
+.answer-main:hover {
+    background-color: #5c062e;
+    -webkit-transition: background-color 1000ms linear;
+    -ms-transition: background-color 1000ms linear;
+    -webkit-transform:scale(1.1); /* Safari and Chrome */
+    -moz-transform:scale(1.1); /* Firefox */
+    -ms-transform:scale(1.1); /* IE 9 */
+    -o-transform:scale(1.1); /* Opera */
+    transform:scale(1.1);
+    transition: background-color 1000ms linear;
+}
+
+.answer-buttons {
+  margin-top: 8px;
+  margin-left: -70px;
+}
+
+.bottom-buttons {
+  position: fixed;
+  bottom: 0;
+  left: 30%;
+  margin-left: -104.5px
+}
+
+#question-title {
+    background-color: #5c062e;
+    margin-top: -5px;
+    margin-bottom: 15px
+}
+
+#question-image{
+    width: 100%;
+    height: 10%
+}
+</style>
+</head>
+<body>
+  <div class="question-row">
+    
+    <div class="col-md-8">
+      
+      <div class="question-main">
+          <h2 id="question-title">{{ line[4] }}</h2>
+          <p>{{ line[5] }}</p>
+          {% if line[6] %}
+            <img src="/static/{{line[6]}}" id="question-image" style="max-width: 200px">
+          {% endif %}
+        <table class="question-data">
+          <tr>
+            <td> ID: {{ line[0] }}</td>
+            <td> Submitted: {{ line[1] }}</td>
+            <td> Viewed: {{ line[2] }}</td>
+            <td> Vote: {{ line[3] }}</td>
+          </tr>
+        </table>
+
+      </div>
+
+    </div>
+    
+    <div class="col-md-2">
+
+      <div class="question-buttons">
+
+        <div class="question-button">
+        <a href='{{ line[0] }}/vote-up' class='btn btn-default del-button'>
+          <i class="glyphicon glyphicon-thumbs-up"></i>
+        </a>
+        </div>
+
+        <div class="question-button">
+        <a href='{{ line[0] }}/vote-down' class='btn btn-default del-button'>
+          <i class="glyphicon glyphicon-thumbs-down"></i>
+        </a>
+        </div>
+
+        <div class="question-button">
+          <a href='{{ line[0] }}/edit' class='btn btn-default edit-button'>
+            <i class="glyphicon glyphicon-pencil"></i>
+          </a>
+        </div>
+
+        <div class="question-button">
+          <form action="{{ line[0] }}/del" method="POST">
+            <button type="submit" class='btn btn-default del-button'>
+              <i class="glyphicon glyphicon-trash"></i>
+            </button>  
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+  {% for answer in answers %}
+  <div class="answer-row">
+    <div class="col-md-8">
+      <div class="answer-main">
+        <table class="question-data">
+          <tr>
+            <td> ID: {{ answer[0] }} </td>
+            <td> Submitted: {{ answer[1] }} </td>
+            <td> Vote: {{ answer[2] }} </td>
+          </tr>
+        </table>
+        <h5> {{ answer[4] }} </h5>
+          {% if answer[5] %}
+            <img src="/static/{{answer[5]}}" style="max-width: 200px">
+          {% endif %}
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="answer-buttons">
+          <div>
             <a href='{{ line[0] }}/{{ answer[0] }}/vote-up' class='btn btn-default del-button'>
               <i class="glyphicon glyphicon-thumbs-up"></i>
             </a>
+          </div>
+          <div>
             <a href='{{ line[0] }}/{{ answer[0] }}/vote-down' class='btn btn-default del-button'>
               <i class="glyphicon glyphicon-thumbs-down"></i>
             </a>
-          </td>
-          <td>
+          </div>
+          <div>
             <form action="{{ line[0] }}/{{ answer[0] }}/del" method="POST">
               <button type="submit" class='btn btn-default del-button'>
                 <i class="glyphicon glyphicon-trash"></i>
               </button>  
             </form>
-          </td>
-        </tr>
-      {% endfor %}
-    </table>
-    <br><br>
-
+          </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  <br>
+  <div class="bottom-buttons">
     <a href='/list' class = "btn btn-default">
-      <i class="glyphicon glyphicon-list"></i><h5>Back to the list</h5>
-    
+      <i class="glyphicon glyphicon-list"></i><h5>   Back to the list   </h5>
     </a>
-
     <a href='/question/{{question_id}}/new-answer' class = "btn btn-default">
       <i class="glyphicon glyphicon-upload"></i><h5>Submit a new answer</h5>
     </a>
-
-
-  
-  </body>
-
+  </div>
+</body>
 </html>
