@@ -1,76 +1,29 @@
 <!DOCTYPE html>
 <html>
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
         <title>Story {{ question_id }} </title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     </head>
-
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-
-  <style>
-body { 
-  margin: 2%;
-  background-color: #065c34;
-  font-family: 'Courier New', Courier, monospace
-  }
-td, th { 
-  border: 1px solid grey;
-  padding: 5px;
-  text-align: left;
-  color: #e7fdf3
-  }
-
- th {
-     background-color: #5c062e;
-     font-weight: bold;
- }
-
-th:hover {
-    background-color: #000000;
-    -webkit-transition: background-color 1000ms linear;
-    -ms-transition: background-color 1000ms linear;
-    transition: background-color 1000ms linear;
-    -webkit-transform:scale(1.1); /* Safari and Chrome */
-    -moz-transform:scale(1.1); /* Firefox */
-    -ms-transform:scale(1.1); /* IE 9 */
-    -o-transform:scale(1.1); /* Opera */
-    transform:scale(1.1);
-}
-
-
- td {
-     background-color: #7c3757
- }
-
-td:hover {
-    background-color: #5c062e;
-    -webkit-transition: background-color 1000ms linear;
-    -ms-transition: background-color 1000ms linear;
-    -webkit-transform:scale(1.1); /* Safari and Chrome */
-    -moz-transform:scale(1.1); /* Firefox */
-    -ms-transform:scale(1.1); /* IE 9 */
-    -o-transform:scale(1.1); /* Opera */
-    transform:scale(1.1);
-    transition: background-color 1000ms linear;
-}
-
-table { 
-  table-layout: auto;
-  border: 2px solid black 
-  }
+    <style>
+        body { 
+        margin: 2%;
+        background-color: #065c34;
+        font-family: 'Courier New', Courier, monospace
+        }
+        
 
   </style>
 
 <body>
 
-<form action={% if qid %}"/question/{{qid}}"{% else %}"/newquestion"{% endif %} method="post" enctype="multipart/form-data">
+<form action = {% if question_id %} "/question/{{ question_id }}" {% else %} "/newquestion" {% endif %} method="post" enctype="multipart/form-data">
     <div>
         <p>
-            {% if typ=='V' %} 
+            {% if get_type=='edit' %} 
                 <h1>Edit question</h1> 
             {% else %} 
                 <h1>Add new question</h1>
@@ -79,16 +32,16 @@ table {
     </div>
     <div>
         <p>Question Title<br>
-            <input type="text" name="q_title" minlength="10" value="{{data[4]}}" size="100" required><br></p>
+            <input type="text" name="question_title" minlength="10" value="{{data[4]}}" size="100" required><br></p>
 
     </div>
     <div>
         <p>Message<br>
-            <textarea name="q_text" minlength="10" rows="15" cols="100" required>{{data[5]}}</textarea></p>
+            <textarea name="question_text" minlength="10" rows="15" cols="100" required>{{data[5]}}</textarea></p>
     </div>
     <div>
         <p>Image<br>
-            <input type="text" name="q_img" size="70" value="{{data[6]}}"><br>
+            <input type="text" name="question_img" size="70" value="{{data[6]}}"><br>
         <p>
             {% if data[6] %}
             <img src="/static/{{data[6]}}" style="max-width: 200px">

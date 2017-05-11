@@ -303,7 +303,7 @@ def edit_question(question_id):
         i += 1
     data = data[i]
 
-    return render_template("question.html", data=data, typ='V')
+    return render_template("question.html", data=data, question_id=question_id get_type='edit')
 
 
 def main():
