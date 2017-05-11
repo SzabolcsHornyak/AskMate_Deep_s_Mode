@@ -74,6 +74,8 @@ def new_question():
             if filex:
                 filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
                 img_file = 'images/'+secure_filename(filex.filename)
+        else:
+            img_file = ''
         question_image = utilities.encode_this(img_file)
         question_data_list.append(str(question_image))  # question image
 
