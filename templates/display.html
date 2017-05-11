@@ -94,11 +94,37 @@ table {
           </td>
         </tr> 
     </table>
-
-    <a href='/newquestion' class = "btn btn-default">
-      <i class="glyphicon glyphicon-question-sign"></i><h5>Ask a question</h5>
-    
-    </a>
+    <br><br>
+    <table>
+      <tr>
+        <th>ID</th>
+        <th>Submission time</th>
+        <th>Votes</th>
+        <th>Question ID</th>
+        <th>Message</th>
+        <th>Image</th>
+        <th>Vote</th>
+        <th>Delete</th>
+      </tr>
+      {% for answer in answers %}
+        <tr>
+          {% for item in answer %}
+            <td>
+              {{ item }}
+            </td>
+          {% endfor %}
+          <td>
+            <a href='{{ line[0] }}/vote-up' class='btn btn-default del-button'>
+              <i class="glyphicon glyphicon-thumbs-up"></i>
+            </a>
+            <a href='{{ line[0] }}/vote-down' class='btn btn-default del-button'>
+              <i class="glyphicon glyphicon-thumbs-down"></i>
+            </a>
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+    <br><br>
 
     <a href='/list' class = "btn btn-default">
       <i class="glyphicon glyphicon-list"></i><h5>Back to the list</h5>
