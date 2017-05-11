@@ -79,12 +79,12 @@ table {
     </div>
     <div>
         <p>Question Title<br>
-            <input type="text" name="q_title" value="{{data[4]}}" size="100" required><br></p>
+            <input type="text" name="q_title" minlength="10" value="{{data[4]}}" size="100" required><br></p>
 
     </div>
     <div>
         <p>Message<br>
-            <textarea name="q_text" rows="15" cols="100" required>{{data[5]}}</textarea></p>
+            <textarea name="q_text" minlength="10" rows="15" cols="100" required>{{data[5]}}</textarea></p>
     </div>
     <div>
         <p>Image<br>
