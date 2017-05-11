@@ -170,6 +170,14 @@ def delete_question(question_id):
     This deletes the question and all its answers (if any),
     and then displays the list of questions.(/question/<question_id>/delete).
     '''
+    # Delete image if exist
+    data_set = utilities.read_and_decode('./static/data/question.csv')
+    question_line = utilities.find_line_by_id(data_set, question_id)
+    print(question_line[6])
+    if question_line[6] != '':
+        if os.path.isfile('static/' + question_line[6]):
+            os.remove('static/' + question_line[6])
+
     # Delete question
     with open('./static/data/question.csv', 'r') as qcsvfile:
         data_set = [line for line in qcsvfile if int(line[0]) != question_id]
@@ -239,8 +247,20 @@ def edit_question(question_id):
         data_line[1] = str(round(time.time()))
         data_line[4] = utilities.encode_this(request.form['question_title'])
         data_line[5] = utilities.encode_this(request.form['question_text'])
-        data_line[6] = utilities.encode_this(request.form['question_img'])
+        img_file = request.form['question_img']
+        secure_path = ''
+        filex = request.files['file']
+        if filex.filename != '':
+            if filex:
+                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
+                secure_path = 'images/'+secure_filename(filex.filename)
+        if secure_path != '':
+            if img_file != secure_path:
+                if os.path.isfile('static/' + img_file):
+                    os.remove('static/' + img_file)
+                img_file = secure_path
 
+        data_line[6] = utilities.encode_this(img_file)+'\n'
         data[data_index] = data_line
         utilities.write_to_csv(data, './static/data/question.csv')
 

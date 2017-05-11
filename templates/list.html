@@ -84,7 +84,11 @@ table {
       {% for line in data_set %}
         <tr>
           {% for item in line %}
+            {% if loop.index==7 %}
+            <td><img src="/static/{{item}}" style="max-width: 200px; max-height: 150px;"></td>
+            {% else %}
             <td> {{ item }}</td>
+            {% endif %}
           {% endfor %}
           <td>
             <a href='question/{{line[0]}}' class='btn btn-default edit-button'>
