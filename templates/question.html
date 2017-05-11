@@ -67,7 +67,7 @@ table {
 
 <body>
 
-<form action={% if qid %}"/question/{{qid}}"{% else %}"/newquestion"{% endif %} method="post">
+<form action={% if qid %}"/question/{{qid}}"{% else %}"/newquestion"{% endif %} method="post" enctype="multipart/form-data">
     <div>
         <p>
             {% if typ=='V' %} 
@@ -93,6 +93,9 @@ table {
             {% if data[6] %}
             <img src="/static/{{data[6]}}" style="max-width: 200px">
             {% endif %}
+        <p>
+            <input type="file" name="file" accept="image/*">
+        </p>
     </div>
     <div>
         {% if typ=='V' %} 

@@ -10,6 +10,9 @@ UPLOAD_FOLDER = 'static/images'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__)
+
+
+UPLOAD_FOLDER = 'static/images'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
@@ -59,7 +62,7 @@ def new_question():
         datas.append(request.form['q_text'])
         data_set.append(datas)
         write_questions(data_set)
-    return render_template('new_quest.html', data=[])
+    return render_template('question.html', data=[])
 
 
 @app.route('/question/<qid>', methods=['POST', 'GET'])

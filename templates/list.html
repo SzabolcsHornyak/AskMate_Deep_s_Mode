@@ -70,7 +70,7 @@ table {
   <body>
 
     <table>
-      {% for fieldname in fieldnames %}
+      {% for fieldname in fieldnames[:-1] %}
         {% if fieldnames.index(fieldname) in range(0,4) %}
         <th>
           <form action="/list" method="GET">

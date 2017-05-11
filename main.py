@@ -1,8 +1,12 @@
 from flask import Flask, render_template, url_for, redirect, request
+from werkzeug.utils import secure_filename
 import base64
 import time
+import os
 app = Flask(__name__, static_url_path='/static')
 
+UPLOAD_FOLDER = 'static/images'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 FIELDNAMES = ['id', 'submission_time', 'view_number', 'vote_number', 'title', 'message',
               'image', 'edit', 'delete', 'vote']
@@ -143,8 +147,17 @@ def new_question():
         question_data_list.append(str(question_title))  # question title
         question_message = encode_this(str(request.form['q_text']))
         question_data_list.append(str(question_message))  # question message
+        img_file = ''
+        filex = request.files['file']
+        if filex.filename != '':
+            if filex:
+                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
+                img_file = 'images/'+secure_filename(filex.filename)
+        question_image = encode_this(img_file)
+        question_data_list.append(str(question_image))  # question image
+
         question_data_string = ','.join(question_data_list)+','  # PICTURE PROBLEM!
-        append_to_csv(question_data_string)
+        append_to_csv(question_data_string[:-1])
         return redirect(url_for('list'))
     return render_template('question.html', data=[])
 
@@ -290,7 +303,7 @@ def edit_question(question_id):
         i += 1
     data = data[i]
 
-    return render_template("question.html", data=data)
+    return render_template("question.html", data=data, typ='V')
 
 
 def main():
