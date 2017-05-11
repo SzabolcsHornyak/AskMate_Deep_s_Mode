@@ -4,7 +4,8 @@ import time
 app = Flask(__name__, static_url_path='/static')
 
 
-FIELDNAMES = ['id', 'submission_time', 'view_number', 'vote_number', 'title', 'message', 'image', 'edit', 'delete']
+FIELDNAMES = ['id', 'submission_time', 'view_number', 'vote_number', 'title', 'message',
+              'image', 'edit', 'delete', 'vote']
 
 
 def decode_this(string):
@@ -50,7 +51,7 @@ def append_to_csv(data_string, file_path='./static/data/question.csv'):
 
 def write_to_csv(data_list, file_path):
     '''
-    Takes a string and appends to the file.
+    Takes a list and writes it to the file.
     '''
     with open(file_path, 'w') as csvfile:
         for line in data_list:
@@ -79,7 +80,6 @@ def find_line_by_id(data_set, question_id):
 # TODO
 # overall testing and bugfixes
 # edit a question: 400
-# delete an answer: 400
 # add image: 500
 
 
@@ -200,50 +200,86 @@ def post_answer(question_id):
         return redirect(url_for('question', question_id=question_id))
 
 
-@app.route('/question/<int:question_id>/del', methods=["GET", "POST"])
-def delete(question_id):
+@app.route('/question/<int:question_id>/<int:answer_id>/del', methods=["POST"])
+def delete_answer(question_id, answer_id):
+    '''
+    delete an answer: 400
+    The site should allow to delete posted answers. (/answer/<answer_id>/delete)
+    '''
+    with open('./static/data/answer.csv', 'r') as acsvfile:
+        data_set = [line for line in acsvfile if int(line[0]) != answer_id]
+    with open('./static/data/answer.csv', 'w') as acsvfile:
+        for line in data_set:
+            acsvfile.write(line)
+
+    return redirect(url_for('question', question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/del', methods=["POST"])
+def delete_question(question_id):
     '''
     delete question: 600
     There should be a "delete" button for each question.
     This deletes the question and all its answers (if any),
     and then displays the list of questions.(/question/<question_id>/delete).
     '''
-    if request.method == "POST":
-        with open('./static/data/question.csv', 'r') as qcsvfile:
-            data_set = [line for line in qcsvfile if int(line[0]) != question_id]
-        with open('./static/data/question.csv', 'w') as qcsvfile:
-            for line in data_set:
-                qcsvfile.write(line)
+    # Delete question
+    with open('./static/data/question.csv', 'r') as qcsvfile:
+        data_set = [line for line in qcsvfile if int(line[0]) != question_id]
+    with open('./static/data/question.csv', 'w') as qcsvfile:
+        for line in data_set:
+            qcsvfile.write(line)
 
-        all_answers = just_read('./static/data/answer.csv')
-        
-        for answer in all_answers:
-            if int(answer[3]) == question_id:
-                all_answers.remove(answer)
-        
-        write_to_csv(all_answers, './static/data/answer.csv')
-
-        return redirect(url_for('list'))
+    # Delete answers to that question
+    all_answers = just_read('./static/data/answer.csv')
+    remaining_answers = [answer for answer in all_answers if int(answer[3]) != question_id]
+    write_to_csv(remaining_answers, './static/data/answer.csv')
+    return redirect(url_for('list'))
 
 
-# vote: 700
-@app.route('/question/<question_id>/<vote>')
-def vote(question_id, vote):
-    question_id = int(question_id)
-
-    with open('./static/data/question.csv', 'r+') as file:
+@app.route('/question/<int:question_id>/<int:answer_id>/<vote>')
+def vote_answer(question_id, answer_id, vote):
+    '''
+    vote: 700
+    There should be a "vote up" and a "vote down" button besides each question and answer.
+    Each one increases/decreases the vote count for them respectively.
+    After sending a vote the page should reload to display the updated vote count.
+    '''
+    with open('./static/data/answer.csv', 'r+') as file:
         data = [line.split(',') for line in file.readlines()]
+        answer_line = find_line_by_id(data, answer_id)
 
         if vote == 'vote-up':
-            data[question_id][3] = str(int(data[question_id][3]) + 1)
+            answer_line[2] = str(int(answer_line[2]) + 1)
         elif vote == 'vote-down':
-            data[question_id][3] = str(int(data[question_id][3]) - 1)
+            answer_line[2] = str(int(answer_line[2]) - 1)
 
-        file.seek(0)
-        for line in data:
-            file.write(','.join(line))
+    write_to_csv(data, './static/data/answer.csv')
 
-    return redirect(url_for('question', id_=question_id))
+    return redirect(url_for('question', question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/<vote>')
+def vote_question(question_id, vote):
+    '''
+    vote: 700
+    There should be a "vote up" and a "vote down" button besides each question and answer.
+    Each one increases/decreases the vote count for them respectively.
+    After sending a vote the page should reload to display the updated vote count.
+    (/question/<question_id>/vote-up and vote-down)
+    '''
+    with open('./static/data/question.csv', 'r+') as file:
+        data = [line.split(',') for line in file.readlines()]
+        question_line = find_line_by_id(data, question_id)
+
+        if vote == 'vote-up':
+            question_line[3] = str(int(question_line[3]) + 1)
+        elif vote == 'vote-down':
+            question_line[3] = str(int(question_line[3]) - 1)
+
+    write_to_csv(data, './static/data/question.csv')
+
+    return redirect(url_for('question', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/edit')
@@ -255,6 +291,7 @@ def edit_question(question_id):
     data = data[i]
 
     return render_template("question.html", data=data)
+
 
 def main():
     app.run(debug=True)
