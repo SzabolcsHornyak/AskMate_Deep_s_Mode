@@ -166,11 +166,18 @@ def new_question():
 def question(question_id):
         '''
         display a question: 1000
-        There should be a page that displays a single question, 
+        There should be a page that displays a single question,
         all its data and all its answers (/question/<question_id>).
         '''
+        # Update view number
+        data_set = just_read('./static/data/question.csv')
+        question_line = find_line_by_id(data_set, question_id)
+        data_set[data_set.index(question_line)][2] = str(int(data_set[data_set.index(question_line)][2]) + 1)
+        write_to_csv(data_set, './static/data/question.csv')
+
         data_set = read_and_decode('./static/data/question.csv')
         question_line = find_line_by_id(data_set, question_id)
+
         all_answers = just_read('./static/data/answer.csv')
         answers = [line for line in all_answers if int(line[3]) == question_id]
         for answer in answers:
@@ -295,15 +302,27 @@ def vote_question(question_id, vote):
     return redirect(url_for('question', question_id=question_id))
 
 
-@app.route('/question/<int:question_id>/edit')
+@app.route('/question/<int:question_id>/edit', methods=['POST', 'GET'])
 def edit_question(question_id):
-    data = read_and_decode('./static/data/question.csv')
-    i = 0
-    while question_id != int(data[i][0]):
-        i += 1
-    data = data[i]
+    if request.method == 'POST':
+        data = just_read('./static/data/question.csv')
+        data_line = find_line_by_id(data, question_id)
 
-    return render_template("question.html", data=data, question_id=question_id get_type='edit')
+        data_index = data.index(data_line)
+        data_line[1] = str(round(time.time()))
+        data_line[4] = encode_this(request.form['question_title'])
+        data_line[5] = encode_this(request.form['question_text'])
+        data_line[6] = encode_this(request.form['question_img'])
+
+        data[data_index] = data_line
+        write_to_csv(data, './static/data/question.csv')
+
+        return redirect(url_for('question', question_id=question_id))
+
+    data = read_and_decode('./static/data/question.csv')
+    data = find_line_by_id(data, question_id)
+
+    return render_template("question.html", data=data, question_id=question_id, get_type='edit')
 
 
 def main():

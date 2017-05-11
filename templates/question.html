@@ -20,7 +20,7 @@
 
 <body>
 
-<form action = {% if question_id %} "/question/{{ question_id }}" {% else %} "/newquestion" {% endif %} method="post" enctype="multipart/form-data">
+<form action = {% if question_id %} "/question/{{ question_id }}/edit" {% else %} "/newquestion" {% endif %} method="post" enctype="multipart/form-data">
     <div>
         <p>
             {% if get_type=='edit' %} 
