@@ -37,8 +37,8 @@ def write_qcsv(question_data):
         qcsvfile.write(question_data+'\n')
 
 
-def id_gen():
-    data_set = just_read('./static/data/question.csv')
+def id_gen(file_path):
+    data_set = just_read(file_path)
     return str(int(data_set[-1][0]) + 1)
 
 # TODO
@@ -86,7 +86,7 @@ def list():
 def new_question():
     if request.method == 'POST':
         question_data = []
-        new_id = id_gen()
+        new_id = id_gen('./static/data/question.csv')
         question_data.append(new_id)
         question_data.append(str(round(time.time())))
         question_data.append('0')  # view_number
@@ -104,7 +104,12 @@ def new_question():
 # display a question: 1000
 @app.route('/question/<int:id_>')
 def question(id_):
-        line = read_and_decode('./static/data/question.csv')[id_]
+        content = read_and_decode('./static/data/question.csv')
+        i = 0
+        while i < len(content) - 1 and content[i][0] != str(id_):
+            i += 1
+        line = content[i]
+
         with open('./static/data/answer.csv', 'r') as file:
             all_answers = [line.split(',') for line in file]
 
@@ -131,20 +136,20 @@ def post_answer(question_id):
 
     if request.method == 'POST':
         with open('./static/data/answer.csv', 'a+') as file:
-            _id = str(len(file.readlines()))  # TODO _id gen last line id + 2
+            answer_id = id_gen('./static/data/answer.csv')
             submission_time = str(round(time.time()))
             vote_number = '0'  # can it be minus?
             message = str(encode_this(request.form['answer_message']))
             image = ''  # TODO
-            question_id = str(question_id)
+            # question_id = str(question_id)
 
-            x = [_id, submission_time, vote_number, question_id, message, image]
+            x = [answer_id, submission_time, vote_number, question_id, message, image]
 
-            #x = list(map(str, y))
+            # x = list(map(str, y))
             answer_data = ','.join(x)
             file.write(answer_data + "\n")
 
-        return redirect(url_for('question', id_=_id))
+        return redirect(url_for('question', id_=question_id))
 
 
 # delete question: 600
@@ -176,8 +181,18 @@ def vote(question_id, vote):
         for line in data:
             file.write(','.join(line))
 
-    return redirect(url_for('question', id=question_id))
+    return redirect(url_for('question', id_=question_id))
 
+
+@app.route('/question/<int:question_id>/edit')
+def edit_question(question_id):
+    data = read_and_decode('./static/data/question.csv')
+    i = 0
+    while question_id != int(data[i][0]):
+        i += 1
+    data = data[i]
+
+    return render_template("new_quest.html", data=data)
 
 def main():
     app.run(debug=True)
