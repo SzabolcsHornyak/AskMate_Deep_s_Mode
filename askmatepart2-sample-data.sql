@@ -46,7 +46,8 @@ CREATE TABLE comment (
     question_id integer,
     answer_id integer,
     message text,
-    submission_time timestamp without time zone
+    submission_time timestamp without time zone,
+    edited_count integer
 );
 
 
@@ -80,10 +81,12 @@ ALTER TABLE ONLY tag
     ADD CONSTRAINT pk_tag_id PRIMARY KEY (id);
 
 ALTER TABLE ONLY comment
-    ADD CONSTRAINT fk_answer_id FOREIGN KEY (answer_id) REFERENCES answer(id);
+    ADD CONSTRAINT fk_answer_id FOREIGN KEY (answer_id) REFERENCES answer(id)
+    ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE ONLY answer
-    ADD CONSTRAINT fk_question_id FOREIGN KEY (question_id) REFERENCES question(id);
+    ADD CONSTRAINT fk_question_id FOREIGN KEY (question_id) REFERENCES question(id) 
+    ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE ONLY question_tag
     ADD CONSTRAINT fk_question_id FOREIGN KEY (question_id) REFERENCES question(id);
@@ -94,22 +97,30 @@ ALTER TABLE ONLY comment
 ALTER TABLE ONLY question_tag
     ADD CONSTRAINT fk_tag_id FOREIGN KEY (tag_id) REFERENCES tag(id);
 
-INSERT INTO question VALUES (0, '2017-04-28 08:29:00', 29, 7, 'SG93IHRvIG1ha2UgbGlzdHMgaW4gUHl0aG9uPw==', 'SSBhbSB0b3RhbGx5IG5ldyB0byB0aGlzLCBhbnkgaGludHM/', NULL);
-INSERT INTO question VALUES (1, '2017-04-29 09:19:00', 15, 9, 'V29yZHByZXNzIGxvYWRpbmcgbXVsdGlwbGUgalF1ZXJ5IFZlcnNpb25z', 'SSBkZXZlbG9wZWQgYSBwbHVnaW4gdGhhdCB1c2VzIHRoZSBqcXVlcnkgYm9va2xldCBwbHVnaW4gKGh0dHA6Ly9idWlsdGJ5d2lsbC5jb20vYm9va2xldC8jLykgdGhpcyBwbHVnaW4gYmluZHMgYSBmdW5jdGlvbiB0byAkIHNvIEkgY2FubiBjYWxsICQoIi5teUJvb2siKS5ib29rbGV0KCk7CgpJIGNvdWxkIGVhc3kgbWFuYWdpbmcgdGhlIGxvYWRpbmcgb3JkZXIgd2l0aCB3cF9lbnF1ZXVlX3NjcmlwdCBzbyBmaXJzdCBJIGxvYWQganF1ZXJ5IHRoZW4gSSBsb2FkIGJvb2tsZXQgc28gZXZlcnl0aGluZyBpcyBmaW5lLgoKQlVUIGluIG15IHRoZW1lIGkgYWxzbyB1c2luZyBqcXVlcnkgdmlhIHdlYnBhY2sgc28gdGhlIGxvYWRpbmcgb3JkZXIgaXMgbm93IGZvbGxvd2luZzoKCmpxdWVyeQpib29rbGV0CmFwcC5qcyAoYnVuZGxlZCBmaWxlIHdpdGggd2VicGFjaywgaW5jbHVkaW5nIGpxdWVyeSk=', 'aW1hZ2VzL2ltYWdlMS5wbmc=');
-INSERT INTO question VALUES (2, '2017-05-01 10:41:00', 1364, 57, 'RHJhd2luZyBjYW52YXMgd2l0aCBhbiBpbWFnZSBwaWNrZWQgd2l0aCBDb3Jkb3ZhIENhbWVyYSBQbHVnaW4=', 'SSdtIGdldHRpbmcgYW4gaW1hZ2UgZnJvbSBkZXZpY2UgYW5kIGRyYXdpbmcgYSBjYW52YXMgd2l0aCBmaWx0ZXJzIHVzaW5nIFBpeGkgSlMuIEl0IHdvcmtzIGFsbCB3ZWxsIHVzaW5nIGNvbXB1dGVyIHRvIGdldCBhbiBpbWFnZS4gQnV0IHdoZW4gSSdtIG9uIElPUywgaXQgdGhyb3dzIGVycm9ycyBzdWNoIGFzIGNyb3NzIG9yaWdpbiBpc3N1ZSwgb3IgdGhhdCBJJ20gdHJ5aW5nIHRvIHVzZSBhbiB1bmtub3duIGZvcm1hdC4KClRoaXMgaXMgdGhlIGNvZGUgSSdtIHVzaW5nIHRvIGRyYXcgdGhlIGltYWdlICh0aGF0IHdvcmtzIG9uIHdlYi9kZXNrdG9wIGJ1dCBub3QgY29yZG92YSBidWlsdCBpb3MgYXBwKQ=SSdtIGdldHRpbmcgYW4gaW1hZ2UgZnJvbSBkZXZpY2UgYW5kIGRyYXdpbmcgYSBjYW52YXMgd2l0aCBmaWx0ZXJzIHVzaW5nIFBpeGkgSlMuIEl0IHdvcmtzIGFsbCB3ZWxsIHVzaW5nIGNvbXB1dGVyIHRvIGdldCBhbiBpbWFnZS4gQnV0IHdoZW4gSSdtIG9uIElPUywgaXQgdGhyb3dzIGVycm9ycyBzdWNoIGFzIGNyb3NzIG9yaWdpbiBpc3N1ZSwgb3IgdGhhdCBJJ20gdHJ5aW5nIHRvIHVzZSBhbiB1bmtub3duIGZvcm1hdC4KClRoaXMgaXMgdGhlIGNvZGUgSSdtIHVzaW5nIHRvIGRyYXcgdGhlIGltYWdlICh0aGF0IHdvcmtzIG9uIHdlYi9kZXNrdG9wIGJ1dCBub3QgY29yZG92YSBidWlsdCBpb3MgYXBwKQ=', NULL);
+INSERT INTO question VALUES (0, '2017-04-28 08:29:00', 29, 7, 'How to make lists in Python?', 'I am totally new to this, any hints?', NULL);
+INSERT INTO question VALUES (1, '2017-04-29 09:19:00', 15, 9, 'Wordpress loading multiple jQuery Versions', 'I developed a plugin that uses the jquery booklet plugin (http://builtbywill.com/booklet/#/) this plugin binds a function to $ so I cann call $(".myBook").booklet();
+
+I could easy managing the loading order with wp_enqueue_script so first I load jquery then I load booklet so everything is fine.
+
+BUT in my theme i also using jquery via webpack so the loading order is now following:
+
+jquery
+booklet
+app.js (bundled file with webpack, including jquery)', 'images/image1.png');
+INSERT INTO question VALUES (2, '2017-05-01 10:41:00', 1364, 57, 'Drawing canvas with an image picked with Cordova Camera Plugin', 'I''m getting an image from device and drawing a canvas with filters using Pixi JS. It works all well using computer to get an image. But when I''m on IOS, it throws errors such as cross origin issue, or that I''m trying to use an unknown format.
+', NULL);
 SELECT pg_catalog.setval('question_id_seq', 2, true);
 
-INSERT INTO answer VALUES (1, '2017-04-28 16:49:00', 4, 1, 'WW91IG5lZWQgdG8gdXNlIGJyYWNrZXRzOiBteV9saXN0ID0gW10=', NULL);
-INSERT INTO answer VALUES (2, '2017-04-25 14:42:00', 35, 1, 'TG9vayBpdCB1cCBpbiB0aGUgUHl0aG9uIGRvY3M=', 'aW1hZ2VzL2ltYWdlMi5qcGc=');
+INSERT INTO answer VALUES (1, '2017-04-28 16:49:00', 4, 1, 'You need to use brackets: my_list = []', NULL);
+INSERT INTO answer VALUES (2, '2017-04-25 14:42:00', 35, 1, 'Look it up in the Python docs', 'images/image2.jpg');
 SELECT pg_catalog.setval('answer_id_seq', 2, true);
 
-INSERT INTO comment VALUES (1, 0, NULL, 'UGxlYXNlIGNsYXJpZnkgdGhlIHF1ZXN0aW9uIGFzIGl0IGlzIHRvbyB2YWd1ZSE=', '2017-05-01 05:49:00');
-INSERT INTO comment VALUES (2, NULL, 1, 'SSB0aGluayB5b3UgY291bGQgdXNlIG15X2xpc3QgPSBsaXN0KCkgYXMgd2VsbC4=', '2017-05-02 16:55:00');
-SELECT pg_catalog.setval('comment_id_seq', 2, true);
+INSERT INTO comment VALUES (1, 0, NULL, 'Please clarify the question as it is too vague!', '2017-05-01 05:49:00');
+INSERT INTO comment VALUES (2, NULL, 1, 'I think you could use my_list = list() as well.', '2017-05-02 16:55:00');
 
-INSERT INTO tag VALUES (1, 'cHl0aG9u');
-INSERT INTO tag VALUES (2, 'c3Fs');
-INSERT INTO tag VALUES (3, 'Y3Nz');
+INSERT INTO tag VALUES (1, 'python');
+INSERT INTO tag VALUES (2, 'sql');
+INSERT INTO tag VALUES (3, 'css');
 SELECT pg_catalog.setval('tag_id_seq', 3, true);
 
 INSERT INTO question_tag VALUES (0, 1);
