@@ -18,7 +18,7 @@ def just_read(file_path):
         return [line.split(',') for line in csvfile]
 
 
-def execute_sql_statement(sql_statement):
+def execute_sql_statement(sql_statement, values=tuple()):
     try:
         # setup connection string
         connect_str = "dbname='szabadon' user='szabadon' host='localhost' password='pringles'"
@@ -30,8 +30,7 @@ def execute_sql_statement(sql_statement):
         print("Uh oh, can't connect. Invalid dbname, user or password?")
         print(e)
     cursor = conn.cursor()
-    cursor.execute(sql_statement)
+    cursor.execute(sql_statement, values)
     if sql_statement[:6] == 'SELECT':
         rows = list(cursor.fetchall())
         return rows
-    return 'OK'
