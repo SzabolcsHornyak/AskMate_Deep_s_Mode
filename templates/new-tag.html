@@ -8,9 +8,16 @@
 </head>
 
 <body>
-  <h2 id="new-tag-question-title">{{ question_title }}</h2>
-    <p id="new-tag-question-message">{{ question_msg }}</p><br>
+  <h2 class="question-title">{{ question_title }}</h2>
+  <p class="question-message">{{ question_msg }}</p><br>
 
+  {% for tag_line in tags %}
+    {% for tag in tag_line %}
+      <form action="/question/{{question_id}}/new-tag" method="post" enctype="multipart/form-data">
+        <input id="new-tag-textarea" name="tag_name" type="submit" value= {{ tag }} >
+      </form>
+    {% endfor %}
+  {% endfor %}
 
   <h1 id="new-tag-title">Add a tag</h1>
   <form action="/question/{{question_id}}/new-tag" method="post" enctype="multipart/form-data">
