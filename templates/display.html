@@ -154,6 +154,33 @@ body {
     </div>
 
   </div>
+  {% for comment in comments %}
+  <div class="comment-row">
+    <div class="col-md-8">
+      <div class="comment-main">
+        <table class="question-data">
+          <tr>
+            <td> ID: {{ comment[0] }} </td>
+            <td> Submitted: {{ comment[4] }} </td>
+          </tr>
+        </table>
+        <h5> {{ comment[3] }} </h5>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="comment-button">
+          <div>
+            <form action="{{ line[0] }}/{{ comment[0] }}/del" method="POST">
+              <button type="submit" class='btn btn-default del-button'>
+                <i class="glyphicon glyphicon-trash"></i>
+              </button>  
+            </form>
+          </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
   {% for answer in answers %}
   <div class="answer-row">
     <div class="col-md-8">
@@ -194,6 +221,7 @@ body {
     </div>
   </div>
   {% endfor %}
+
   <br>
   <div class="bottom-buttons">
     <a href='/list' class = "btn btn-default">
@@ -202,6 +230,10 @@ body {
     <a href='/question/{{question_id}}/new-answer' class = "btn btn-default">
       <i class="glyphicon glyphicon-upload"></i><h5>Submit a new answer</h5>
     </a>
+        <a href='/question/{{question_id}}/new-comment' class = "btn btn-default">
+      <i class="glyphicon glyphicon-upload"></i><h5>Submit a new comment</h5>
+    </a>
+
   </div>
 </body>
 </html>
