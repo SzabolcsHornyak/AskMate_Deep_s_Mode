@@ -1,103 +1,85 @@
 from flask import Flask, render_template, request, send_from_directory
 from werkzeug.utils import secure_filename
-import base64
+import psycopg2
 import csv
 import time
 import os
+
 
 app = Flask(__name__, static_url_path='/static')
 UPLOAD_FOLDER = 'static/images'
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask(__name__)
+dbname = 'basic_sql2'
+user = 'codecooler'
+host = 'localhost'
+password = '1234'
 
 
 UPLOAD_FOLDER = 'static/images'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+FIELDNAMES = ['id', 'submission_time', 'view_number', 'vote_number', 'title', 'message',
+              'image', 'view', 'delete', 'vote']
+
+"""
+As a user, I want to see the latest 5 submitted questions on the main page (/). 
+I want to see somewhere a link to all of the questions (/list).
+"""
 
 
-def decode_this(string):
-    return base64.b64decode(string).decode('utf-8')
+def delete_unused_images():
+    local_images = next(os.walk(UPLOAD_FOLDER))[2]
+    db_images = execute_sql_statement("SELECT image FROM question where image is not null union all SELECT image FROM answer where answer is not null")
+    match = []
+    for i in range(len(local_images)):
+        for j in range(len(db_images)):
+            if str(db_images[j][0]).lower() == str('images/'+local_images[i]).lower():
+                match.append(db_images[j][0])
+    for i in range(len(local_images)):
+        if str('images/'+local_images[i]).lower() not in match:
+            del_file =  UPLOAD_FOLDER + '/' + local_images[i]
+            os.remove(del_file)
 
 
-def encode_this(string):
-    return base64.b64encode(string.encode('utf-8')).decode('utf-8')
-
-
-def load_question():
-    with open('./static/data/question.csv', 'r') as qcsvfile:
-        data_set = [line.split(',') for line in qcsvfile]
-        for i in range(len(data_set)):
-            for j in range(len(data_set[i])):
-                if j > 3:
-                    data_set[i][j] = decode_this(data_set[i][j])
-    return data_set
-
-
-def write_questions(datas):
-    filename = './static/data/question.csv'
-    with open(filename, 'w') as f:
-        for i in range(len(datas)):
-            temp_string = ''
-            for j in range(len(datas[i])):
-                if j > 3:
-                    temp_string += str(encode_this(datas[i][j]))+','
-                else:
-                    temp_string += str(datas[i][j])+','
-            temp_string = temp_string[:-1]
-            f.write(temp_string+'\n')
-
-
-@app.route('/newquestion', methods=['POST', 'GET'])
-def new_question():
-    if request.method == 'POST':
-        data_set = load_question()
-        last_id = data_set[len(data_set)-1][0]
-        datas = []
-        datas.append(int(last_id)+1)
-        datas.append(round(time.time()))
-        datas.append('0')
-        datas.append('0')
-        datas.append(request.form['q_title'])
-        datas.append(request.form['q_text'])
-        data_set.append(datas)
-        write_questions(data_set)
-    return render_template('question.html', data=[])
-
-
-@app.route('/question/<qid>', methods=['POST', 'GET'])
-def qestion_view(qid=None):
-    datas = load_question()
-    data_tmp = []
-    if request.method == 'POST':
-        secure_path = ''
-        img_file = request.form['q_img']
-        filex = request.files['file']
-        if filex.filename != '':
-            if filex:
-                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
-                secure_path = 'images/'+secure_filename(filex.filename)
-        if secure_path != '':
-            if img_file != secure_path:
-                os.remove('static/' + img_file)
-                img_file = secure_path
-        for i in range(len(datas)):
-            if datas[i][0] == qid:
-                datas[i][4] = request.form['q_title']
-                datas[i][5] = request.form['q_text']
-                datas[i][6] = img_file
-        write_questions(datas)
-        data_tmp = datas[int(qid)]
+def execute_sql_statement(sql_statement, values=tuple()):
+    try:
+        # setup connection string
+        connect_str = "dbname="+dbname+" user="+user+" host="+host+" password="+password
+        # use our connection values to establish a connection
+        conn = psycopg2.connect(connect_str)
+        # set autocommit option, to do every query when we call it
+        conn.autocommit = True
+    except Exception as e:
+        print("Uh oh, can't connect. Invalid dbname, user or password?")
+        print(e)
+    cursor = conn.cursor()
+    if values:
+        cursor.execute(sql_statement, values)
     else:
-        for i in range(len(datas)):
-            if datas[i][0] == qid:
-                for j in range(len(datas[i])):
-                    data_tmp.append(datas[i][j])
-    return render_template('new_quest.html', data=data_tmp, typ='V', qid=qid)
+        cursor.execute(sql_statement)
+    if sql_statement[:6] == 'SELECT':
+        rows = list(cursor.fetchall())
+        return rows
+
+
+@app.route('/')
+def get_list_5():
+    data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC limit 5;")
+    sort_direction = 'asc' 
+    return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES, dir=sort_direction)
+
+
+@app.route('/list')
+def get_list_all():
+    data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC;")
+    sort_direction = 'asc' 
+    return render_template('list.html', data_set=data_set, fieldnames=FIELDNAMES, dir=sort_direction)
 
 
 def main():
-    app.run(debug=True)
+    delete_unused_images()
+    #app.run(debug=True)
 
 
 if __name__ == '__main__':
