@@ -1,0 +1,25 @@
+<!doctype HTML>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Add new tag - Q{{question_id}}</title>
+</head>
+
+<body>
+  <h2 id="new-tag-question-title">{{ question_title }}</h2>
+    <p id="new-tag-question-message">{{ question_msg }}</p><br>
+
+
+  <h1 id="new-tag-title">Add a tag</h1>
+  <form action="/question/{{question_id}}/new-tag" method="post" enctype="multipart/form-data">
+    <textarea id="new-tag-textarea" minlength=5 name="tag_name" style="resize:none" rows=1 cols=65 required></textarea><br>
+    <input id="add-new-tag-button" type="submit" value="Add tag">
+  </form>
+  <a href='/question/{{question_id}}' class = "btn btn-default">
+    <i class="glyphicon glyphicon-list"></i>
+    <h5>Back to the question</h5>
+  </a>
+</body>
+</html>

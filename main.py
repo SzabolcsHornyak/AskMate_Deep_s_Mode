@@ -83,8 +83,7 @@ def post_answer(question_id):
         if filex.filename != '':
             if filex:
                 filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
-                img_file = 'images/'+secure_filename(filex.filename)
-                answer_image = encode_this(img_file)
+                answer_image = 'images/'+secure_filename(filex.filename)
         else:
             answer_image = ""
 
@@ -132,6 +131,23 @@ def vote_answer(question_id, answer_id, vote):
     execute_sql_statement("UPDATE answer SET vote_number= %s WHERE id = %s;", (vote_nr, answer_id))
 
     return redirect(url_for('question', question_id=question_id))
+
+
+@app.route('/question/<question_id>/new-tag', methods=['POST', 'GET'])
+def new_tag(question_id):
+    if request.method == 'GET':
+        question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
+        return render_template('new-tag.html',
+                               question_id=question_id,
+                               question_title=question_line[4],
+                               question_msg=question_line[5])
+
+    if request.method == 'POST':
+        tag_name = str(request.form['tag_name'])
+        execute_sql_statement("INSERT INTO tag (name) VALUES (%s);", (tag_name,))
+        tag_id = execute_sql_statement("SELECT id FROM tag WHERE name=%s;", (tag_name,))[0]
+        execute_sql_statement("INSERT INTO question_tag (question_id, tag_id) VALUES (%s, %s);", (question_id, tag_id))
+        return redirect(url_for('question', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/vote/<vote>')
