@@ -57,6 +57,15 @@ def new_question():
     return render_template('question.html', data=[])
 
 
+@app.route('/search')
+def search_results():
+    search_phrase = '%'+str(request.query_string.decode('utf-8'))[2:]+'%'
+    search_result = execute_sql_statement("""SELECT * FROM question
+                                          WHERE (message LIKE %s
+                                          OR title LIKE %s);""", (search_phrase, search_phrase))
+    return render_template('list.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
+
+
 @app.route('/question/<question_id>/new-tag', methods=['POST', 'GET'])
 def new_tag(question_id):
     if request.method == 'GET':

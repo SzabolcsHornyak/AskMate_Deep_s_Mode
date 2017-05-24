@@ -106,9 +106,16 @@ table {
       {% endfor %}
     </table>
 
+    <a href='/list' class = "btn btn-default">
+      <i class="glyphicon glyphicon-repeat"></i><h5>Refresh page</h5>
+    </a>
     <a href='/newquestion' class = "btn btn-default">
       <i class="glyphicon glyphicon-question-sign"></i><h5>Ask a question</h5>
     </a>
-  
+    <form action="/search" method="get" enctype="multipart/form-data">
+      Search Questions:
+      <input type="search" name="q">
+    </form> 
+
   </body>
 </html>
