@@ -1,0 +1,72 @@
+body {
+  margin: 2%;
+  background-color: #065c34;
+  font-family: 'Courier New', Courier, monospace
+}
+
+#all-questions-table { 
+  table-layout: auto;
+  border: 2px solid black 
+}
+
+
+.all-questions-tabledata, .all-questions-tablehead { 
+  border: 1px solid grey;
+  padding: 5px;
+  text-align: left;
+  color: #e7fdf3
+}
+
+.all-questions-tablehead {
+    background-color: #5c062e;
+    font-weight: bold;
+}
+
+.all-questions-tablehead:hover {
+  background-color: #000000;
+  -webkit-transition: background-color 1000ms linear;
+  -ms-transition: background-color 1000ms linear;
+  transition: background-color 1000ms linear;
+  -webkit-transform:scale(1.1); /* Safari and Chrome */
+  -moz-transform:scale(1.1); /* Firefox */
+  -ms-transform:scale(1.1); /* IE 9 */
+  -o-transform:scale(1.1); /* Opera */
+  transform:scale(1.1);
+}
+
+.all-questions-tabledata {
+  background-color: #7c3757
+}
+
+.all-questions-tabledata:hover {
+    background-color: #5c062e;
+    -webkit-transition: background-color 1000ms linear;
+    -ms-transition: background-color 1000ms linear;
+    -webkit-transform:scale(1.1); /* Safari and Chrome */
+    -moz-transform:scale(1.1); /* Firefox */
+    -ms-transform:scale(1.1); /* IE 9 */
+    -o-transform:scale(1.1); /* Opera */
+    transform:scale(1.1);
+    transition: background-color 1000ms linear;
+}
+
+.all-questions-tablehead-sort-buttons {
+    background:none;
+    border:none;
+    margin:0;
+    padding:0;
+}
+
+.single-question-body {
+  background-color: #7c3757;
+  color: #e7fdf3;
+  padding:20px;
+}
+
+.single-question-submit-button {
+  color: #2a3131
+}
+
+.new-question-wtf{
+    color: black
+}
