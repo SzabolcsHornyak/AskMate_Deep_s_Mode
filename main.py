@@ -77,10 +77,13 @@ def question(question_id):
 
         tag_id_list = execute_sql_statement("SELECT tag_id FROM question_tag WHERE question_id = %s;", (question_id,))
         question_tags = []
+        tag_ids = []
 
         for tags in tag_id_list:
             question_tags.append(execute_sql_statement("SELECT name FROM tag WHERE id = %s;", (tags[0],))[0][0])
+            tag_ids.append(execute_sql_statement("SELECT id FROM tag WHERE id = %s;", (tags[0],))[0][0])
 
+        question_tags = zip(tag_ids, question_tags)
         return render_template('display_question.html',
                                line=question_line,
                                fieldnames=constants.FIELDNAMES,
@@ -337,7 +340,7 @@ def edit_comment(comment_id):
 
 
 ###############################################################################################################
-#                                               TAGs                                                          #
+#                                               TAGS                                                          #
 ###############################################################################################################
 @app.route('/question/<question_id>/tag/<tag_id>/delete')
 def tag_delete(question_id, tag_id):

@@ -27,7 +27,12 @@
 
     <div id="display-question-tag-container">
      {% for tag in question_tags %}
-      <button class="display-question-tags btn btn-default"> {{ tag }} </button>
+      <div class="display-question-tags"> 
+        <h8>{{ tag[1] }} </h8>
+          <a href="{{ line[0] }}/tag/{{ tag[0] }}/delete">
+          <i class="glyphicon glyphicon-trash"></i>
+          </a>
+      </div>
      {% endfor %}
     </div>
   </div>

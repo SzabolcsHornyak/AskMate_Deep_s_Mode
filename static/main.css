@@ -117,10 +117,12 @@ body {
   width: 100%;
   border: 1px solid grey;
 }
+
 .display-question-tags{
   background-color: #7c3757;
   color:white;
   float: right;
+  border: 2px solid grey;
 }
 
 .display-question-buttons {
