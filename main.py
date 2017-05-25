@@ -73,42 +73,20 @@ def question(question_id):
         for answer_id in answer_ids:
             answer_comments.append(execute_sql_statement("SELECT * FROM comment WHERE answer_id = %s", (answer_id,)))
 
+        tag_id_list = execute_sql_statement("SELECT tag_id FROM question_tag WHERE question_id = %s;", (question_id,))
+        question_tags = []
+
+        for tags in tag_id_list:
+            question_tags.append(execute_sql_statement("SELECT name FROM tag WHERE id = %s;", (tags[0],))[0][0])
+
         return render_template('display.html',
                                line=question_line,
                                fieldnames=constants.FIELDNAMES,
                                answers=answers,
                                question_comments=question_comments,
                                answer_comments=answer_comments,
-                               question_id=question_id)
-
-
-@app.route("/question/<question_id>/new-answer", methods=['GET', 'POST'])
-def post_answer(question_id):
-    if request.method == 'GET':
-        question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
-        return render_template('answer.html',
                                question_id=question_id,
-                               question_title=question_line[4],
-                               question_msg=question_line[5])
-
-    if request.method == 'POST':
-        # refactor this??????
-        filex = request.files['file']
-        if filex.filename != '':
-            if filex:
-                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
-                answer_image = 'images/'+secure_filename(filex.filename)
-        else:
-            answer_image = ""
-
-        a_time = datetime.now()  # round this bitch or something
-        a_vote_number = 0
-        a_message = str(request.form['answer_message'])
-        execute_sql_statement("""
-                       INSERT INTO answer (submission_time, vote_number, question_id, message, image)
-                       VALUES (%s, %s, %s, %s, %s);
-                       """, (a_time, a_vote_number, question_id, a_message, answer_image))
-        return redirect(url_for('question', question_id=question_id))
+                               question_tags=question_tags)
 
 
 @app.route('/question/<int:question_id>/<int:answer_id>/del', methods=["POST"])
@@ -161,7 +139,7 @@ def vote_question(question_id, vote):
     elif vote == 'vote-down':
         vote_nr -= 1
 
-    execute_sql_statement("UPDATE question SSET vote_number= %s WHERE id = %s;", (vote_nr, question_id))
+    execute_sql_statement("UPDATE question SET vote_number= %s WHERE id = %s;", (vote_nr, question_id))
 
     return redirect(url_for('question', question_id=question_id))
 
@@ -219,6 +197,34 @@ def display_answer(answer_id):
 
     return render_template("display_answer.html", line=answer_line, comments=comments)
 
+
+@app.route("/question/<question_id>/new-answer", methods=['GET', 'POST'])
+def post_answer(question_id):
+    if request.method == 'GET':
+        question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
+        return render_template('answer.html',
+                               question_id=question_id,
+                               question_title=question_line[4],
+                               question_msg=question_line[5])
+
+    if request.method == 'POST':
+        # refactor this??????
+        filex = request.files['file']
+        if filex.filename != '':
+            if filex:
+                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
+                answer_image = 'images/'+secure_filename(filex.filename)
+        else:
+            answer_image = ""
+
+        a_time = datetime.now()  # round this bitch or something
+        a_vote_number = 0
+        a_message = str(request.form['answer_message'])
+        execute_sql_statement("""
+                       INSERT INTO answer (submission_time, vote_number, question_id, message, image)
+                       VALUES (%s, %s, %s, %s, %s);
+                       """, (a_time, a_vote_number, question_id, a_message, answer_image))
+        return redirect(url_for('question', question_id=question_id))
 ###############################################################################################################
 #                                               COMMENTS                                                      #
 ###############################################################################################################
@@ -279,42 +285,58 @@ def delete_comment(comment_id):
 def edit_comment(comment_id):
     comment = execute_sql_statement("""SELECT * FROM comment WHERE id=%s;""", (comment_id,))[0]
     comment_message = comment[3]
-    if comment[1] is not None:
-        question_id = comment[1]
-        question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
-        return render_template('new_question_comment.html',
+    
+    if request.method == 'GET':
+        if comment[1] is not None:
+            question_id = comment[1]
+            question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
+            return render_template('new_question_comment.html',
+                                comment_id=comment_id,
                                 comment_message=comment_message,
                                 question_id=question_id,
                                 question_title=question_line[4],
                                 question_msg=question_line[5])
-    else:
-        answer_id = execute_sql_statement("""SELECT answer_id FROM comment WHERE id = %s;""", (comment_id,))[0][0]
-        data = execute_sql_statement("""SELECT message FROM answer WHERE id = %s;""", (answer_id,))[0]
+        else:
+            answer_id = execute_sql_statement("""SELECT answer_id FROM comment WHERE id = %s;""", (comment_id,))[0][0]
+            data = execute_sql_statement("""SELECT message FROM answer WHERE id = %s;""", (answer_id,))[0]
 
-        return render_template('new_answer_comment.html',
-                                answer_message=data[1],
-                                answer_id=answer_id,
-                                comment_message=comment_message)
+            return render_template('new_answer_comment.html',
+                                   answer_message=data[0],
+                                   answer_id=answer_id,
+                                   comment_id=comment_id,
+                                   comment_message=comment_message)
 
     if request.method == "POST":
         # update sql
-        execute_sql_statement("""UPDATE comment
-                                SET
-                                message=%s
-                                submission_time=%s
-                                edited_count=edited_count+1;""",
-                                (request.form['comment_message'], round(datetime.now())))
+        if comment[1] is not None:
+            question_id = comment[1]
+            execute_sql_statement("""
+                                  UPDATE comment
+                                  SET
+                                  message=%s, submission_time=%s
+                                  WHERE id=%s;
+                                  """,
+                                  (request.form['comment_message'], datetime.now(), comment_id))
 
-        return redirect(url_for('question', question_id=question_id))
+            return redirect(url_for('question', question_id=question_id))
 
+        else:
+            answer_id = execute_sql_statement("""SELECT answer_id FROM comment WHERE id = %s;""", (comment_id,))[0][0]
+            execute_sql_statement("""
+                                  UPDATE comment
+                                  SET
+                                  message=%s, submission_time=%s
+                                  WHERE id=%s;
+                                  """,
+                                  (request.form['comment_message'], datetime.now(), comment_id))
+            return redirect(url_for('display_answer', answer_id=answer_id))
 
 ###############################################################################################################
 #                                               TAGs                                                          #
 ###############################################################################################################
 @app.route('/question/<question_id>/tag/<tag_id>/delete')
 def tag_delete(question_id, tag_id):
-    execute_sql_statement("DELETE FROM tag WHERE id = %s;", (question_id))[0]
-    execute_sql_statement("DELETE FROM question_tag WHERE where question_id = %s and tag_id = %s;", (question_id, tag_id))[0]
+    execute_sql_statement("DELETE FROM question_tag WHERE question_id = %s and tag_id = %s;", (question_id, tag_id))
     return redirect(url_for('question', question_id=question_id))
 
 
