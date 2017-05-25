@@ -83,7 +83,9 @@ body {
     </div>
     <div class="new-question-comment-main">
       <h1 id="new-comment-title">{% if not comment_message %} Add a {% else %} Edit {% endif %} comment</h1>
-      <form action="/question/{{question_id}}/new-comment" method="post" enctype="multipart/form-data">
+      <form
+        action="{% if not comment_message %}/question/{{question_id}}/new-comment{%else%}/comments/{{comment_id}}/edit{%endif%}"
+        method="POST" enctype="multipart/form-data">
           <textarea id="new-comment-textarea" minlength=10 name="comment_message" style="resize:none" rows=5 cols=65 required>
             {{ comment_message }}
           </textarea><br>

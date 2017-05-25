@@ -81,17 +81,21 @@ body {
       <p id="new-comment-answer-message">{{ answer_message }}</p><br>
     </div>
     <div class="new-comment-answer-main">
-      <h1 id="new-comment-title">Add a comment</h1>
-      <form action="/answer/{{answer_id}}/new-comment" method="post" enctype="multipart/form-data">
-          <textarea id="new-comment-textarea" minlength=10 name="comment_message" style="resize:none" rows=5 cols=65 required></textarea><br>
-          <input type="file" name="file" accept="image/*">
-          <input id="new-comment-add-comment-button" type="submit" value="Add comment">        
+      <h1 id="new-comment-title">{% if not comment_message %} Add a {% else %} Edit {% endif %} comment</h1>
+      <form
+      action="{% if not comment_message %}/answer/{{answer_id}}/new-comment {%else%} /comments/{{comment_id}}/edit {%endif%}"
+      method="POST" enctype="multipart/form-data">
+          <textarea id="new-comment-textarea" minlength=10 name="comment_message" style="resize:none" rows=5 cols=65 required>
+            {{ comment_message }}  
+          </textarea><br>
+          <input id="new-comment-add-comment-button" type="submit"
+                 value="{% if not comment_message %} Add {% else %} Edit {% endif %} comment ">        
       </form>
       <a href='/answer/{{answer_id}}' class = "btn btn-default">
         <i class="glyphicon glyphicon-list"></i><h5>Back to the answer</h5>
       </a>
     </div>
-  {% for comment in comemnts %}
+  {% for comment in comments %}
   <div class="comment-row">
     <div class="col-md-8">
       <div class="comment-main">
