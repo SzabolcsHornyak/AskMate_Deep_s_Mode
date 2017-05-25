@@ -2,22 +2,6 @@ import base64
 import psycopg2
 
 
-def decode_this(string):
-    '''Takes a base64 string and decodes it to human-readable value.'''
-    return base64.b64decode(string).decode()
-
-
-def encode_this(string):
-    '''Takes a human-readable string and encodes it to a base64 value.'''
-    return base64.b64encode(string.encode('utf-8')).decode('utf-8')
-
-
-def just_read(file_path):
-    '''Takes a csv file and makes a raw 2d table from it.'''
-    with open(file_path, 'r') as csvfile:
-        return [line.split(',') for line in csvfile]
-
-
 def execute_sql_statement(sql_statement, values=tuple()):
     try:
         # setup connection string
