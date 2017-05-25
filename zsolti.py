@@ -96,10 +96,17 @@ def new_tag(question_id):
 def question(question_id):
         question_line = execute_sql_statement("SELECT * FROM question WHERE id =  %s;", (question_id,))[0]
         answers = execute_sql_statement("SELECT * FROM answer WHERE question_id = %s;", (question_id,))
+
+        tag_id_list = execute_sql_statement("SELECT tag_id FROM question_tag WHERE question_id = %s;", (question_id,))
+        question_tags = []
+        for tags in tag_id_list:
+            question_tags.append(execute_sql_statement("SELECT name FROM tag WHERE id = %s;", (tags[0],))[0][0])
+
         return render_template('display.html',
                                line=question_line,
                                fieldnames=constants.FIELDNAMES,
                                answers=answers,
+                               question_tags=question_tags,
                                question_id=question_id)
 
 

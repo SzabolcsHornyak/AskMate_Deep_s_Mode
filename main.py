@@ -12,17 +12,18 @@ app = Flask(__name__, static_url_path='/static')
 
 app.config['UPLOAD_FOLDER'] = constants.UPLOAD_FOLDER
 
+
 @app.route('/')
 def get_list_5():
     data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC limit 5;")
-    sort_direction = 'asc' 
+    sort_direction = 'asc'
     return render_template('list.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
 
 
 @app.route('/list')
 def list():
     data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC;")
-    sort_direction = 'asc' 
+    sort_direction = 'asc'
     '''
     list_from_query_string = request.query_string.decode('utf-8').split('=')
     if len(list_from_query_string) == 2:
@@ -132,6 +133,11 @@ def delete_question(question_id):
     return redirect(url_for('list'))
 
 
+###############################################################################################################
+#                                               VOTE                                                        #
+###############################################################################################################
+
+
 @app.route('/question/<int:question_id>/<int:answer_id>/<vote>')
 def vote_answer(question_id, answer_id, vote):
     vote_nr = execute_sql_statement("SELECT vote_number FROM answer WHERE id = %s;", (answer_id,))[0][0]
@@ -189,12 +195,17 @@ def edit_question(question_id):
     return render_template("question.html", data=data, question_id=question_id, get_type='edit')
 
 
+###############################################################################################################
+#                                               SEARCH                                                        #
+###############################################################################################################
+
+
 @app.route('/search')
 def search_results():
-    search_phrase = '%'+str(request.query_string.decode('utf-8'))[2:]+'%'
+    search_phrase = '%'+str(request.query_string.decode('utf-8'))[2:].lower()+'%'
     search_result = execute_sql_statement("""SELECT * FROM question
-                                          WHERE (message LIKE %s
-                                          OR title LIKE %s);""", (search_phrase, search_phrase))
+                                          WHERE (LOWER(message) LIKE %s
+                                          OR LOWER(title) LIKE %s);""", (search_phrase, search_phrase))
     return render_template('list.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
 
 
