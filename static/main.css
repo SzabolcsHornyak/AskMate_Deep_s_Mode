@@ -72,14 +72,15 @@ body {
 }
 
 
-.question-main {
+/* display.html */
+
+#display-question-main {
     background-color: #7c3757;
     color:white;
     border: 1px solid grey;
     padding:20px;
 }
-
-.question-main:hover {
+#display-question-main:hover {
     background-color: #5c062e;
     -webkit-transition: background-color 1000ms linear;
     -ms-transition: background-color 1000ms linear;
@@ -91,7 +92,18 @@ body {
     transition: background-color 1000ms linear;
 }
 
-.question-data {
+#display-question-title {
+    background-color: #5c062e;
+    margin-top: -5px;
+    margin-bottom: 15px;
+}
+
+#display-question-image{
+    max-width: 200px;
+    max-height: 200px;
+}
+
+.display-question-data {
     width: 100%;
     height: 5%;
     padding: 50px;
@@ -100,17 +112,38 @@ body {
     background-color: #5c062e;
 }
 
-.question-buttons {
-
-    margin-left: -40px;
+#display-question-tag-container{
+  background-color: #5c062e;
+  width: 100%;
+  border: 1px solid grey;
 }
+.display-question-tags{
+  background-color: #7c3757;
+  color:white;
+  float: right;
+}
+
+.display-question-buttons {
+    float:right;
+    clear:right;
+    padding: 2% 1%;
+    display: block;
+}
+
+.display-question-comment-main {
+  background-color: #7c3757;
+  color:white;
+  border: 1px solid grey;
+  padding:20px;
+}
+
 
 .question-button {
     height: 25%;
 }
 
 
-.answer-main {
+.display-question-answer-main {
   background-color: #7c3757;
   color:white;
   padding: 20px;
@@ -118,7 +151,7 @@ body {
 
 }
 
-.answer-main:hover {
+.display-question-answer-main:hover {
     background-color: #5c062e;
     -webkit-transition: background-color 1000ms linear;
     -ms-transition: background-color 1000ms linear;
@@ -130,25 +163,14 @@ body {
     transition: background-color 1000ms linear;
 }
 
-.answer-buttons {
+.display-question-answer-buttons {
   margin-top: 8px;
   margin-left: -70px;
 }
 
-.bottom-buttons {
+.display-question-bottom-buttons {
   position: fixed;
   bottom: 0;
   left: 30%;
   margin-left: -104.5px
-}
-
-#question-title {
-    background-color: #5c062e;
-    margin-top: -5px;
-    margin-bottom: 15px
-}
-
-#question-image{
-    width: 100%;
-    height: 10%
 }
