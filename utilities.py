@@ -21,13 +21,14 @@ def just_read(file_path):
 def execute_sql_statement(sql_statement, values=tuple()):
     try:
         # setup connection string
-        dbname = 'basic_sql2'
-        user = 'codecooler'
-        host = 'localhost'
-        password = '1234'
+        with open('static/conn_str.txt', 'r') as file:
+            conn_str = file.readline()
+        dbname = conn_str.split(',')[0]
+        user = conn_str.split(',')[1]
+        host = conn_str.split(',')[2]
+        password = conn_str.split(',')[3]
 
         connect_str = "dbname="+dbname+" user="+user+" host="+host+" password="+password
-        #connect_str = "dbname='szabadon' user='szabadon' host='localhost' password='pringles'"
         # use our connection values to establish a connection
         conn = psycopg2.connect(connect_str)
         # set autocommit option, to do every query when we call it

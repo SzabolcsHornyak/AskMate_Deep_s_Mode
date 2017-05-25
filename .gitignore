@@ -1,5 +1,6 @@
 ./vscode
 /static/data/question.csv
+/static/conn_str.txt
 
 # Created by https://www.gitignore.io/api/python,visualstudiocode
 
