@@ -17,7 +17,7 @@ app.config['UPLOAD_FOLDER'] = constants.UPLOAD_FOLDER
 def get_list_5():
     data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC limit 5;")
     sort_direction = 'asc'
-    return render_template('list.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
+    return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
 
 
 @app.route('/list')
@@ -38,7 +38,7 @@ def list():
 
     except IndexError:
         pass
-    return render_template('list.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
+    return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
 
 
 @app.route('/newquestion', methods=['POST', 'GET'])
@@ -61,7 +61,7 @@ def new_question():
                        VALUES (%s, %s, %s, %s, %s, %s);
                        """, (q_time, q_view_number, q_vote_number, q_title, q_message, q_img))
         return redirect(url_for('list'))
-    return render_template('question.html', data=[])
+    return render_template('post_question.html', data=[])
 
 
 @app.route('/question/<int:question_id>')
@@ -81,7 +81,7 @@ def question(question_id):
         for tags in tag_id_list:
             question_tags.append(execute_sql_statement("SELECT name FROM tag WHERE id = %s;", (tags[0],))[0][0])
 
-        return render_template('display.html',
+        return render_template('display_question.html',
                                line=question_line,
                                fieldnames=constants.FIELDNAMES,
                                answers=answers,
@@ -172,7 +172,7 @@ def edit_question(question_id):
 
     data = execute_sql_statement("SELECT * FROM question WHERE id ="+str(question_id)+";")[0]
 
-    return render_template("question.html", data=data, question_id=question_id, get_type='edit')
+    return render_template("post_question.html", data=data, question_id=question_id, get_type='edit')
 
 
 ###############################################################################################################
@@ -186,7 +186,7 @@ def search_results():
     search_result = execute_sql_statement("""SELECT * FROM question
                                           WHERE (LOWER(message) LIKE %s
                                           OR LOWER(title) LIKE %s);""", (search_phrase, search_phrase))
-    return render_template('list.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
+    return render_template('list_questions.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
 
 
 ###############################################################################################################
@@ -204,7 +204,7 @@ def display_answer(answer_id):
 def post_answer(question_id):
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
-        return render_template('answer.html',
+        return render_template('post_answer.html',
                                question_id=question_id,
                                question_title=question_line[4],
                                question_msg=question_line[5])
@@ -227,6 +227,8 @@ def post_answer(question_id):
                        VALUES (%s, %s, %s, %s, %s);
                        """, (a_time, a_vote_number, question_id, a_message, answer_image))
         return redirect(url_for('question', question_id=question_id))
+
+
 ###############################################################################################################
 #                                               COMMENTS                                                      #
 ###############################################################################################################
@@ -234,7 +236,7 @@ def post_answer(question_id):
 def post_question_comment(question_id):
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
-        return render_template('new_question_comment.html',
+        return render_template('post_comment_to_question.html',
                                question_id=question_id,
                                question_title=question_line[4],
                                question_msg=question_line[5])
@@ -254,7 +256,7 @@ def post_question_comment(question_id):
 def post_answer_comment(answer_id):
     answer_line = execute_sql_statement("SELECT * FROM answer WHERE id = %s;", (answer_id,))[0]
     if request.method == 'GET':
-        return render_template('new_answer_comment.html',
+        return render_template('post_comment_to_answer.html',
                                answer_id=answer_id,
                                answer_message=answer_line[4],)
 
@@ -287,22 +289,22 @@ def delete_comment(comment_id):
 def edit_comment(comment_id):
     comment = execute_sql_statement("""SELECT * FROM comment WHERE id=%s;""", (comment_id,))[0]
     comment_message = comment[3]
-    
+
     if request.method == 'GET':
         if comment[1] is not None:
             question_id = comment[1]
             question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
-            return render_template('new_question_comment.html',
-                                comment_id=comment_id,
-                                comment_message=comment_message,
-                                question_id=question_id,
-                                question_title=question_line[4],
-                                question_msg=question_line[5])
+            return render_template('post_comment_to_question.html',
+                                   comment_id=comment_id,
+                                   comment_message=comment_message,
+                                   question_id=question_id,
+                                   question_title=question_line[4],
+                                   question_msg=question_line[5])
         else:
             answer_id = execute_sql_statement("""SELECT answer_id FROM comment WHERE id = %s;""", (comment_id,))[0][0]
             data = execute_sql_statement("""SELECT message FROM answer WHERE id = %s;""", (answer_id,))[0]
 
-            return render_template('new_answer_comment.html',
+            return render_template('post_comment_to_answer.html',
                                    answer_message=data[0],
                                    answer_id=answer_id,
                                    comment_id=comment_id,
@@ -333,6 +335,7 @@ def edit_comment(comment_id):
                                   (request.form['comment_message'], datetime.now(), comment_id))
             return redirect(url_for('display_answer', answer_id=answer_id))
 
+
 ###############################################################################################################
 #                                               TAGs                                                          #
 ###############################################################################################################
@@ -347,7 +350,7 @@ def new_tag(question_id):
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
         existing_tags = execute_sql_statement("SELECT name FROM tag;")
-        return render_template('new-tag.html',
+        return render_template('question_tag.html',
                                question_id=question_id,
                                question_title=question_line[4],
                                question_msg=question_line[5],
