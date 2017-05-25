@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Answer</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<link rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+  <div class="answer-row col-md-8">
+    <div class="display-question-answer-main">
+      <table class="display-question-data">
+        <tr>
+          <td> ID: {{ answer[0] }} </td>
+          <td> Submitted: {{ answer[1] }} </td>
+          <td> Vote: {{ answer[2] }} </td>
+        </tr>
+      </table>
+      <h5> {{ answer[4] }} </h5>
+       {% if answer[5] %}
+        <img src="/static/{{answer[5]}}" style="max-width: 200px">
+       {% endif %}
+    </div>
+  </div>
+  <div class="display-question-answer-buttons col-md-4">
+    <div>
+      <a href='{{ answer[0] }}/{{ answer[0] }}/vote-up' class='btn btn-default del-button'>
+        <i class="glyphicon glyphicon-thumbs-up"></i>
+      </a>
+    </div>
+    <div>
+      <a href='{{ answer[0] }}/{{ answer[0] }}/vote-down' class='btn btn-default del-button'>
+        <i class="glyphicon glyphicon-thumbs-down"></i>
+      </a>
+    </div>
+    <div>
+      <a href='/answer/{{ answer[0] }}/new-comment' class='btn btn-default del-button'>
+        <i class="glyphicon glyphicon-plus"></i>
+      </a>
+    </div>
+    <div>
+      <a href='../answer/{{answer[0]}}' class='btn btn-default edit-button'>
+        <i class="glyphicon glyphicon-eye-open"></i>
+      </a>
+    </div>
+    <div>
+      <form action="{{ answer[0] }}/{{ answer[0] }}/del" method="POST">
+        <button type="submit" class='btn btn-default del-button'>
+          <i class="glyphicon glyphicon-trash"></i>
+        </button>  
+      </form>
+    </div>
+  </div>
+  
+
+
+    
+      {% for comment in comments %}
+        {% if comment[2] == answer[0] %}
+        <div class="display-question-comment-main col-md-8">
+          <table class="display-question-data">
+            <tr>
+              <td> ID: {{ comment[0] }} </td>
+              <td> Submitted: {{ comment[4] }} </td>
+            </tr>
+          </table>
+          <h5> {{ comment[3] }} </h5>
+        </div>
+        <div class="comment-button col-md-4">
+          <div>
+            <form action="/comments/{{ comment[0] }}/del" method="POST">
+              <button type="submit" class='btn btn-default del-button'>
+                <i class="glyphicon glyphicon-trash"></i>
+              </button>  
+            </form>
+          </div>
+          <div> 
+            <form action="/comments/{{ comment[0] }}/edit" method="GET">
+              <button type="submit" class='btn btn-default del-button'>
+                <i class="glyphicon glyphicon-pencil"></i>
+              </button>  
+            </form>
+          </div>
+        </div>
+        {% endif %}
+      {% endfor %}          
+    
+  
+  <br>
+  <div class="display-question-bottom-buttons">
+    <a href='/question/{{answer[3]}}' class = "btn btn-default">
+      <i class="glyphicon glyphicon-list"></i><h5>   Back to the question   </h5>
+    </a>
+        <a href='/answer/{{answer[0]}}/new-comment' class = "btn btn-default">
+      <i class="glyphicon glyphicon-upload"></i><h5>Submit a new comment</h5>
+    </a>
+
+  </div>
+</body>
+</html> 

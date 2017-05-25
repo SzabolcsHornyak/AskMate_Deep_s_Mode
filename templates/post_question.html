@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+        <title>Story {{ question_id }} </title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/main.css">
+    </head>
+<body>
+  <div class="single-question-body col-md-6">
+    <form action = {% if get_type=='edit' %} "/question/{{ question_id }}/edit" {% else %} "/newquestion" {% endif %} method="post" enctype="multipart/form-data">
+      <div>
+        <p>
+        {% if get_type=='edit' %} 
+          <h1>Edit question</h1> 
+        {% else %} 
+          <h1>Add new question</h1>
+        {% endif %}
+        </p>
+      </div>
+      <div>
+        <p>Question Title
+          <br>
+          <input class ="new-question-wtf" type="text" name="question_title" minlength="10" value="{{data[4]}}" size="70" required>
+          <br>
+        </p>
+      </div>
+      <div>
+        <p>Message
+          <br>
+          <textarea class ="new-question-wtf" name="question_text" minlength="10" rows="15" cols="70" required>{{data[5]}}</textarea>
+        </p>
+      </div>
+      <div>
+        <p>Image
+        <br>
+          <input class ="new-question-wtf" type="text" name="question_img" size="70" value="{{data[6]}}"><br>
+          {% if data[6] %}
+            <img src="/static/{{data[6]}}" style="max-width: 200px">
+          {% endif %}
+          <input class ="new-question-wtf" type="file" name="file" accept="image/*">
+        </p>
+      </div>
+      
+      <div>
+        {% if get_type=='edit' %} 
+          <p><input class="single-question-submit-button" type="submit" value="UPDATE"></p> 
+        {% else %} 
+          <p><input class="single-question-submit-button" type="submit" value="SUBMIT"></p>
+        {% endif %}
+      </div>
+      <a href='/list' class = "btn btn-default">
+        <i class="glyphicon glyphicon-list"></i>
+        <h5>Back to the list</h5>
+      </a>
+    </form>
+  </div>
+</body>
+</html>

@@ -197,7 +197,7 @@ def display_answer(answer_id):
     answer_line = execute_sql_statement("SELECT * FROM answer WHERE id =  %s;", (answer_id,))[0]
     comments = execute_sql_statement("SELECT * FROM comment WHERE answer_id = %s;", (answer_id,))
 
-    return render_template("display_answer.html", line=answer_line, comments=comments)
+    return render_template("display_answer.html", answer=answer_line, comments=comments)
 
 
 @app.route("/question/<question_id>/new-answer", methods=['GET', 'POST'])

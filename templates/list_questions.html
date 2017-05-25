@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title> every asked question </title>
+  </head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/main.css">
+  <body>
+
+    <table id="all-questions-table">
+      {% for fieldname in fieldnames[:-1] %}
+        {% if fieldnames.index(fieldname) in range(0,4) %}
+        <th class="all-questions-tablehead">
+          <form action="/list" method="GET">
+              <input type="hidden" name="{{ fieldname }}" value="{{ dir }}" /> 
+              <button class="all-questions-tablehead-sort-buttons" type="submit" > {{ fieldname }} </button></form></th>
+          {% else %}
+          <th class="all-questions-tablehead"> {{ fieldname }} </th>
+          {% endif %}
+      {% endfor %}
+      
+      {% for line in data_set %}
+        <tr>
+          {% for item in line %}
+            {% if loop.index==7 and item %}
+            <td class="all-questions-tabledata"><img src="/static/{{item}}" style="max-width: 200px; max-height: 150px;"></td>
+            {% else %}
+            <td class="all-questions-tabledata"> {{ item }}</td>
+            {% endif %}
+          {% endfor %}
+          <td class="all-questions-tabledata">
+            <a href='question/{{line[0]}}' class='btn btn-default edit-button'>
+              <i class="glyphicon glyphicon-eye-open"></i>
+            </a>
+          </td>
+          <td class="all-questions-tabledata">
+            <form action="question/{{ line[0] }}/del" method="POST">
+              <button type="submit" class='btn btn-default del-button'>
+                <i class="glyphicon glyphicon-trash"></i>
+              </button>  
+            </form>
+          </td>
+        </tr> 
+      {% endfor %}
+    </table>
+
+    <a href='/list' class = "btn btn-default">
+      <i class="glyphicon glyphicon-th-list"></i><h5>View Full List</h5>
+    </a>
+    <a href='/' class = "btn btn-default">
+      <i class="glyphicon glyphicon-repeat"></i><h5>Refresh Root</h5>
+    </a>
+    <a href='/newquestion' class = "btn btn-default">
+      <i class="glyphicon glyphicon-question-sign"></i><h5>Ask a question</h5>
+    </a>
+    <form action="/search" method="get" enctype="multipart/form-data">
+      Search Questions:
+      <input type="search" name="q">
+    </form> 
+
+  </body>
+</html>
