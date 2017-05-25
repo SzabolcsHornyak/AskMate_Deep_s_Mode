@@ -59,10 +59,10 @@ def new_question():
 
 @app.route('/search')
 def search_results():
-    search_phrase = '%'+str(request.query_string.decode('utf-8'))[2:]+'%'
+    search_phrase = '%'+str(request.query_string.decode('utf-8'))[2:].lower()+'%'
     search_result = execute_sql_statement("""SELECT * FROM question
-                                          WHERE (message LIKE %s
-                                          OR title LIKE %s);""", (search_phrase, search_phrase))
+                                          WHERE (LOWER(message) LIKE %s
+                                          OR LOWER(title) LIKE %s);""", (search_phrase, search_phrase))
     return render_template('list.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
 
 
