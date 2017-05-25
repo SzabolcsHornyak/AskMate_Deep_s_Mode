@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Question</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<style>
+body { 
+  margin: 2%;
+  background-color: #065c34;
+  font-family: 'Courier New', Courier, monospace
+  }
+
+.question-main {
+    background-color: #7c3757;
+    color:white;
+    border: 1px solid grey;
+    padding:20px;
+}
+
+.question-main:hover {
+    background-color: #5c062e;
+    -webkit-transition: background-color 1000ms linear;
+    -ms-transition: background-color 1000ms linear;
+    -webkit-transform:scale(1.1); /* Safari and Chrome */
+    -moz-transform:scale(1.1); /* Firefox */
+    -ms-transform:scale(1.1); /* IE 9 */
+    -o-transform:scale(1.1); /* Opera */
+    transform:scale(1.1);
+    transition: background-color 1000ms linear;
+}
+
+.question-data {
+    width: 100%;
+    height: 5%;
+    padding: 50px;
+    border: 1px solid grey;
+    color:white;
+    background-color: #5c062e;
+}
+
+.question-buttons {
+
+    margin-left: -40px;
+}
+
+.question-button {
+    height: 25%;
+}
+
+
+.answer-main {
+  background-color: #7c3757;
+  color:white;
+  padding: 20px;
+  margin: 10px 30px 10px 30px;
+
+}
+
+.answer-main:hover {
+    background-color: #5c062e;
+    -webkit-transition: background-color 1000ms linear;
+    -ms-transition: background-color 1000ms linear;
+    -webkit-transform:scale(1.1); /* Safari and Chrome */
+    -moz-transform:scale(1.1); /* Firefox */
+    -ms-transform:scale(1.1); /* IE 9 */
+    -o-transform:scale(1.1); /* Opera */
+    transform:scale(1.1);
+    transition: background-color 1000ms linear;
+}
+
+.answer-buttons {
+  margin-top: 8px;
+  margin-left: -70px;
+}
+
+.bottom-buttons {
+  position: fixed;
+  bottom: 0;
+  left: 30%;
+  margin-left: -104.5px
+}
+
+#question-title {
+    background-color: #5c062e;
+    margin-top: -5px;
+    margin-bottom: 15px
+}
+
+#question-image{
+    width: 100%;
+    height: 10%
+}
+</style>
+</head>
+<body>
+  <div class="answer-row">
+    
+    <div class="col-md-8">
+      
+      <div class="answer-main">
+          <h2 id="answer-title">{{ line[4] }}</h2>
+          <p>{{ line[5] }}</p>
+          {% if line[6] %}
+            <img src="/static/{{line[6]}}" id="answer-image" style="max-width: 200px">
+          {% endif %}
+        <table class="answer-data">
+          <tr>
+            <td> ID: {{ line[0] }}</td>
+            <td> Submitted: {{ line[1] }}</td>
+            <td> Vote: {{ line[2] }}</td>
+          </tr>
+        </table>
+
+      </div>
+
+    </div>
+    
+    <div class="col-md-2">
+
+      <div class="answer-buttons">
+
+        <div class="answer-button">
+        <a href='question/{{ line[0] }}/vote/vote-up' class='btn btn-default del-button'>
+          <i class="glyphicon glyphicon-thumbs-up"></i>
+        </a>
+        </div>
+
+        <div class="answer-button">
+        <a href='{{ line[0] }}/vote/vote-down' class='btn btn-default del-button'>
+          <i class="glyphicon glyphicon-thumbs-down"></i>
+        </a>
+        </div>
+
+        <div class="answer-button">
+          <a href='{{ line[0] }}/edit' class='btn btn-default edit-button'>
+            <i class="glyphicon glyphicon-pencil"></i>
+          </a>
+        </div>
+
+        <div class="answer-button">
+          <form action="{{ line[0] }}/del" method="POST">
+            <button type="submit" class='btn btn-default del-button'>
+              <i class="glyphicon glyphicon-trash"></i>
+            </button>  
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+  {% for comment in comments %}
+  <div class="comment-row">
+    <div class="col-md-8">
+      <div class="comment-main">
+        <table class="answer-data">
+          <tr>
+            <td> ID: {{ comment[0] }} </td>
+            <td> Submitted: {{ comment[4] }} </td>
+          </tr>
+        </table>
+        <h5> {{ comment[3] }} </h5>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="comment-button">
+          <div>
+            <form action="/comments/{{ comment[0] }}/del" method="POST">
+              <button type="submit" class='btn btn-default del-button'>
+                <i class="glyphicon glyphicon-trash"></i>
+              </button>  
+            </form>
+          </div>
+          <div>
+            <form action="/comments/{{ comment[0] }}/edit" method="POST">
+              <button type="submit" class='btn btn-default del-button'>
+                <i class="glyphicon glyphicon-pencil"></i>
+              </button>  
+            </form>
+          </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+
+  <br>
+  <div class="bottom-buttons">
+    <a href='/question/{{line[3]}}' class = "btn btn-default">
+      <i class="glyphicon glyphicon-list"></i><h5>   Back to the question   </h5>
+    </a>
+        <a href='/answer/{{line[0]}}/new-comment' class = "btn btn-default">
+      <i class="glyphicon glyphicon-upload"></i><h5>Submit a new comment</h5>
+    </a>
+
+  </div>
+</body>
+</html>

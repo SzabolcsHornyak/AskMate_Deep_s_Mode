@@ -154,7 +154,7 @@ body {
     </div>
 
   </div>
-  {% for comment in comments %}
+  {% for comment in question_comments %}
   <div class="comment-row">
     <div class="col-md-8">
       <div class="comment-main">
@@ -168,14 +168,22 @@ body {
       </div>
     </div>
     <div class="col-md-4">
-      <div class="comment-button">
+      <div class="comment-buttons">
           <div>
-            <form action="{{ line[0] }}/{{ comment[0] }}/del" method="POST">
+            <form action="/comments/{{ comment[0] }}/del" method="POST">
               <button type="submit" class='btn btn-default del-button'>
                 <i class="glyphicon glyphicon-trash"></i>
               </button>  
             </form>
           </div>
+          <div>
+            <form action="/comments/{{ comment[0] }}/edit" method="POST">
+              <button type="submit" class='btn btn-default del-button'>
+                <i class="glyphicon glyphicon-pencil"></i>
+              </button>  
+            </form>
+          </div>
+
       </div>
     </div>
   </div>
@@ -211,12 +219,12 @@ body {
             </a>
           </div>
           <div>
-            <a href='answer/{{ answer[0] }}/new-comment' class='btn btn-default del-button'>
+            <a href='/answer/{{ answer[0] }}/new-comment' class='btn btn-default del-button'>
               <i class="glyphicon glyphicon-plus"></i>
             </a>
           </div>
           <div>
-            <a href='answer/{{answer[0]}}' class='btn btn-default edit-button'>
+            <a href='../answer/{{answer[0]}}' class='btn btn-default edit-button'>
               <i class="glyphicon glyphicon-eye-open"></i>
             </a>
           </div>
@@ -228,6 +236,41 @@ body {
               </button>  
             </form>
           </div>
+
+          {% for comments in answer_comments %}
+            {% for comment in comments %}
+            <div class="comment-row">
+              <div class="col-md-8">
+                <div class="comment-main">
+                  <table class="question-data">
+                    <tr>
+                      <td> ID: {{ comment[0] }} </td>
+                      <td> Submitted: {{ comment[4] }} </td>
+                    </tr>
+                  </table>
+                  <h5> {{ comment[3] }} </h5>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="comment-button">
+                    <div>
+                      <form action="/comments/{{ comment[0] }}/del" method="POST">
+                        <button type="submit" class='btn btn-default del-button'>
+                          <i class="glyphicon glyphicon-trash"></i>
+                        </button>  
+                      </form>
+                      <form action="/comments/{{ comment[0] }}/edit" method="POST">
+                        <button type="submit" class='btn btn-default del-button'>
+                          <i class="glyphicon glyphicon-pencil"></i>
+                        </button>  
+                      </form>
+
+                    </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}          
+          {% endfor %}
       </div>
     </div>
   </div>

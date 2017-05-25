@@ -38,7 +38,7 @@ def delete_unused_images():
                 match.append(db_images[j][0])
     for i in range(len(local_images)):
         if str('images/'+local_images[i]).lower() not in match:
-            del_file =  UPLOAD_FOLDER + '/' + local_images[i]
+            del_file = UPLOAD_FOLDER + '/' + local_images[i]
             os.remove(del_file)
 
 
@@ -78,8 +78,7 @@ def get_list_all():
 
 
 def main():
-    delete_unused_images()
-    #app.run(debug=True)
+    app.run(debug=True)
 
 
 if __name__ == '__main__':
