@@ -300,6 +300,13 @@ def edit_comment(comment_id):
 ###############################################################################################################
 #                                               TAGs                                                          #
 ###############################################################################################################
+@app.route('/question/<question_id>/tag/<tag_id>/delete')
+def tag_delete(question_id, tag_id):
+    execute_sql_statement("DELETE FROM tag WHERE id = %s;", (question_id))[0]
+    execute_sql_statement("DELETE FROM question_tag WHERE where question_id = %s and tag_id = %s;", (question_id, tag_id))[0]
+    return redirect(url_for('question', question_id=question_id))
+
+
 @app.route('/question/<question_id>/new-tag', methods=['POST', 'GET'])
 def new_tag(question_id):
     if request.method == 'GET':
