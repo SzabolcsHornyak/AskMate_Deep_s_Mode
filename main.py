@@ -7,6 +7,7 @@ import constants
 import psycopg2
 from utilities import encode_this
 from utilities import execute_sql_statement
+import vote
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -121,31 +122,15 @@ def delete_question(question_id):
 ###############################################################################################################
 
 
-@app.route('/question/<int:question_id>/<int:answer_id>/<vote>')
-def vote_answer(question_id, answer_id, vote):
-    vote_nr = execute_sql_statement("SELECT vote_number FROM answer WHERE id = %s;", (answer_id,))[0][0]
-
-    if vote == 'vote-up':
-        vote_nr += 1
-    elif vote == 'vote-down':
-        vote_nr -= 1
-
-    execute_sql_statement("UPDATE answer SET vote_number= %s WHERE id = %s;", (vote_nr, answer_id))
-
+@app.route('/question/<int:question_id>/<int:answer_id>/<vote_direction>')
+def vote_answer(question_id, answer_id, vote_direction):
+    vote.change_vote('answer', answer_id, vote_direction)
     return redirect(url_for('question', question_id=question_id))
 
 
-@app.route('/question/<int:question_id>/vote/<vote>')
-def vote_question(question_id, vote):
-    vote_nr = execute_sql_statement("SELECT vote_number FROM question WHERE id = %s;", (question_id,))[0][0]
-
-    if vote == 'vote-up':
-        vote_nr += 1
-    elif vote == 'vote-down':
-        vote_nr -= 1
-
-    execute_sql_statement("UPDATE question SET vote_number= %s WHERE id = %s;", (vote_nr, question_id))
-
+@app.route('/question/<int:question_id>/vote/<vote_direction>')
+def vote_question(question_id, vote_direction):
+    vote.change_vote('question', question_id, vote_direction)
     return redirect(url_for('question', question_id=question_id))
 
 
