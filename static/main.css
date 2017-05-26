@@ -112,11 +112,13 @@ body {
     background-color: #5c062e;
 }
 
-#display-question-tag-container{
+#display-question-tag-container {
   background-color: #5c062e;
   width: 100%;
   border: 1px solid grey;
 }
+
+
 
 .display-question-tags{
   background-color: #7c3757;
