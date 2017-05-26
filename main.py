@@ -14,15 +14,23 @@ app = Flask(__name__, static_url_path='/static')
 app.config['UPLOAD_FOLDER'] = constants.UPLOAD_FOLDER
 
 
+###############################################################################################################
+#                                     LIST QUESTIONS                                                          #
+###############################################################################################################
 @app.route('/')
-def get_list_5():
+def get_limited_list_of_questions():
+    '''
+    Delivers a list of questions from question table, ordered by submission time, limited their number to five.
+    '''
     data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC limit 5;")
-    sort_direction = 'asc'
-    return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
+    return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir='asc')
 
 
 @app.route('/list')
-def list():
+def get_list_of_questions():
+    '''
+    Delivers a list of all questions from question table.
+    '''
     data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC;")
     sort_direction = 'asc'
     list_from_query_string = request.query_string.decode('utf-8').split('=')
@@ -42,6 +50,9 @@ def list():
     return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
 
 
+###############################################################################################################
+#                                           QUESTION                                                          #
+###############################################################################################################
 @app.route('/newquestion', methods=['POST', 'GET'])
 def new_question():
     if request.method == 'POST':
@@ -95,45 +106,6 @@ def question(question_id):
                                question_tags=question_tags)
 
 
-@app.route('/question/<int:question_id>/<int:answer_id>/del', methods=["POST"])
-def delete_answer(question_id, answer_id):
-    execute_sql_statement("DELETE FROM answer WHERE id= %s;", (answer_id,))
-    return redirect(url_for('question', question_id=question_id))
-
-
-@app.route('/question/<int:question_id>/del', methods=["POST"])
-def delete_question(question_id):
-    # LATER! TODO
-    '''
-    # Delete image if exist
-    data_set = utilities.read_and_decode('./static/data/question.csv')
-    question_line = utilities.find_line_by_id(data_set, question_id)
-    print(question_line[6])
-    if question_line[6] != '':
-        if os.path.isfile('static/' + question_line[6]):
-            os.remove('static/' + question_line[6])
-    '''
-    execute_sql_statement("DELETE FROM question WHERE id=%s;", (question_id,))
-    return redirect(url_for('list'))
-
-
-###############################################################################################################
-#                                               VOTE                                                        #
-###############################################################################################################
-
-
-@app.route('/question/<int:question_id>/<int:answer_id>/<vote_direction>')
-def vote_answer(question_id, answer_id, vote_direction):
-    vote.change_vote('answer', answer_id, vote_direction)
-    return redirect(url_for('question', question_id=question_id))
-
-
-@app.route('/question/<int:question_id>/vote/<vote_direction>')
-def vote_question(question_id, vote_direction):
-    vote.change_vote('question', question_id, vote_direction)
-    return redirect(url_for('question', question_id=question_id))
-
-
 @app.route('/question/<int:question_id>/edit', methods=['POST', 'GET'])
 def edit_question(question_id):
     if request.method == 'POST':
@@ -163,22 +135,24 @@ def edit_question(question_id):
     return render_template("post_question.html", data=data, question_id=question_id, get_type='edit')
 
 
+@app.route('/question/<int:question_id>/del', methods=["POST"])
+def delete_question(question_id):
+    # LATER! TODO
+    '''
+    # Delete image if exist
+    data_set = utilities.read_and_decode('./static/data/question.csv')
+    question_line = utilities.find_line_by_id(data_set, question_id)
+    print(question_line[6])
+    if question_line[6] != '':
+        if os.path.isfile('static/' + question_line[6]):
+            os.remove('static/' + question_line[6])
+    '''
+    execute_sql_statement("DELETE FROM question WHERE id=%s;", (question_id,))
+    return redirect(url_for('list'))
+
+
 ###############################################################################################################
-#                                               SEARCH                                                        #
-###############################################################################################################
-
-
-@app.route('/search')
-def search_results():
-    search_phrase = '%'+str(request.query_string.decode('utf-8'))[2:].lower()+'%'
-    search_result = execute_sql_statement("""SELECT * FROM question
-                                          WHERE (LOWER(message) LIKE %s
-                                          OR LOWER(title) LIKE %s);""", (search_phrase, search_phrase))
-    return render_template('list_questions.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
-
-
-###############################################################################################################
-#                                               ANSWER                                                        #
+#                                             ANSWER                                                          #
 ###############################################################################################################
 @app.route('/answer/<int:answer_id>')
 def display_answer(answer_id):
@@ -215,6 +189,39 @@ def post_answer(question_id):
                        VALUES (%s, %s, %s, %s, %s);
                        """, (a_time, a_vote_number, question_id, a_message, answer_image))
         return redirect(url_for('question', question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/<int:answer_id>/del', methods=["POST"])
+def delete_answer(question_id, answer_id):
+    execute_sql_statement("DELETE FROM answer WHERE id= %s;", (answer_id,))
+    return redirect(url_for('question', question_id=question_id))
+
+
+###############################################################################################################
+#                                               VOTE                                                          #
+###############################################################################################################
+@app.route('/question/<int:question_id>/<int:answer_id>/<vote_direction>')
+def vote_answer(question_id, answer_id, vote_direction):
+    vote.change_vote('answer', answer_id, vote_direction)
+    return redirect(url_for('question', question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/vote/<vote_direction>')
+def vote_question(question_id, vote_direction):
+    vote.change_vote('question', question_id, vote_direction)
+    return redirect(url_for('question', question_id=question_id))
+
+
+###############################################################################################################
+#                                               SEARCH                                                        #
+###############################################################################################################
+@app.route('/search')
+def search_results():
+    search_phrase = '%'+str(request.query_string.decode('utf-8'))[2:].lower()+'%'
+    search_result = execute_sql_statement("""SELECT * FROM question
+                                          WHERE (LOWER(message) LIKE %s
+                                          OR LOWER(title) LIKE %s);""", (search_phrase, search_phrase))
+    return render_template('list_questions.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
 
 
 ###############################################################################################################
@@ -360,7 +367,7 @@ def new_tag(question_id):
 
 
 ###############################################################################################################
-#                                               OTHERS                                                        #
+#                                       IMAGE HANDLING                                                        #
 ###############################################################################################################
 @app.route("/delete_unused_images")
 def delete_unused_images():
