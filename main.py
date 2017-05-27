@@ -56,23 +56,9 @@ def get_list_of_questions():
 @app.route('/newquestion', methods=['POST', 'GET'])
 def new_question():
     if request.method == 'POST':
-        q_time = datetime.now()  # round this bitch or something
-        q_view_number = 0
-        q_vote_number = 0
-        q_title = str(request.form['question_title'])
-        q_message = str(request.form['question_text'])
-        filex = request.files['file']
-        if filex.filename != '':
-            if filex:
-                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
-                q_img = 'images/'+secure_filename(filex.filename)
-        else:
-            q_img = ''
-        execute_sql_statement("""
-                       INSERT INTO question (submission_time, view_number, vote_number, title, message, image)
-                       VALUES (%s, %s, %s, %s, %s, %s);
-                       """, (q_time, q_view_number, q_vote_number, q_title, q_message, q_img))
-        return redirect(url_for('list'))
+        q_img = question_module.new_question_image_handling(request.files['file'], app, True)
+        question_module.insert_new_question_into_database(request.form, q_img)
+        return redirect(url_for('get_list_of_questions'))
     return render_template('post_question.html', data=[])
 
 
@@ -95,29 +81,12 @@ def display_question(question_id):
 @app.route('/question/<int:question_id>/edit', methods=['POST', 'GET'])
 def edit_question(question_id):
     if request.method == 'POST':
-        q_time = datetime.now()  # round this bitch or something
-        q_view_number = 0
-        q_vote_number = 0
-        q_title = str(request.form['question_title'])
-        q_message = str(request.form['question_text'])
-        filex = request.files['file']
-        if filex.filename != '':
-            if filex:
-                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
-                q_img = 'images/'+secure_filename(filex.filename)
-        else:
-            q_img = ''
-        execute_sql_statement("""
-                              UPDATE question
-                              SET
-                              submission_time=%s,view_number=%s,vote_number=%s,title=%s,message=%s,image=%s
-                              WHERE id=%s;
-                              """,
-                              (q_time, q_view_number, q_vote_number, q_title, q_message, q_img, question_id))
+        q_img = question_module.new_question_image_handling(request.files['file'], app)
+        if q_img:
+            execute_sql_statement("""UPDATE question SET image=%s WHERE id=%s;""", (q_img, question_id))
+        question_module.update_question(request.form, question_id)
         return redirect(url_for('display_question', question_id=question_id))
-
-    data = execute_sql_statement("SELECT * FROM question WHERE id ="+str(question_id)+";")[0]
-
+    data = execute_sql_statement("SELECT * FROM question WHERE id=%s;", (question_id,))[0]
     return render_template("post_question.html", data=data, question_id=question_id, get_type='edit')
 
 
@@ -134,7 +103,7 @@ def delete_question(question_id):
             os.remove('static/' + question_line[6])
     '''
     execute_sql_statement("DELETE FROM question WHERE id=%s;", (question_id,))
-    return redirect(url_for('list'))
+    return redirect(url_for('get_list_of_questions'))
 
 
 ###############################################################################################################
@@ -368,7 +337,7 @@ def delete_unused_images():
         if str('images/'+local_images[i]).lower() not in match:
             del_file = constant.UPLOAD_FOLDER + '/' + local_images[i]
             os.remove(del_file)
-    return redirect(url_for('list'))
+    return redirect(url_for('get_list_of_questions'))
 
 
 def main():
