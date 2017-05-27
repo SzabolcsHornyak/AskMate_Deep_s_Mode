@@ -92,16 +92,7 @@ def edit_question(question_id):
 
 @app.route('/question/<int:question_id>/del', methods=["POST"])
 def delete_question(question_id):
-    # LATER! TODO
-    '''
-    # Delete image if exist
-    data_set = utilities.read_and_decode('./static/data/question.csv')
-    question_line = utilities.find_line_by_id(data_set, question_id)
-    print(question_line[6])
-    if question_line[6] != '':
-        if os.path.isfile('static/' + question_line[6]):
-            os.remove('static/' + question_line[6])
-    '''
+    question_module.delete_image(question_id)
     execute_sql_statement("DELETE FROM question WHERE id=%s;", (question_id,))
     return redirect(url_for('get_list_of_questions'))
 
@@ -335,7 +326,7 @@ def delete_unused_images():
                 match.append(db_images[j][0])
     for i in range(len(local_images)):
         if str('images/'+local_images[i]).lower() not in match:
-            del_file = constant.UPLOAD_FOLDER + '/' + local_images[i]
+            del_file = constants.UPLOAD_FOLDER + '/' + local_images[i]
             os.remove(del_file)
     return redirect(url_for('get_list_of_questions'))
 

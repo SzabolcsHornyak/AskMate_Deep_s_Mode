@@ -1,5 +1,5 @@
 from utilities import execute_sql_statement
-from os import path
+from os import path, remove
 from werkzeug.utils import secure_filename
 from datetime import datetime
 
@@ -30,6 +30,12 @@ def new_question_image_handling(filex, app, new_question=False):
                 return 'images/'+secure_filename(filex.filename)
         if new_question:
             return ''
+
+
+def delete_image(question_id):
+    q_img = execute_sql_statement("SELECT image from question WHERE id=%s;", (question_id,))[0][0]
+    if q_img and path.isfile('static/' + q_img):
+        remove('static/' + q_img)
 
 
 def insert_new_question_into_database(q_user_input, q_img):
