@@ -7,7 +7,7 @@ import constants
 import psycopg2
 from utilities import encode_this
 from utilities import execute_sql_statement
-import vote
+from askmatepackage import vote, question_module
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -77,33 +77,19 @@ def new_question():
 
 
 @app.route('/question/<int:question_id>')
-def question(question_id):
-        question_line = execute_sql_statement("SELECT * FROM question WHERE id =  %s;", (question_id,))[0]
-        answers = execute_sql_statement("SELECT * FROM answer WHERE question_id = %s;", (question_id,))
-        question_comments = execute_sql_statement("SELECT * FROM comment WHERE question_id = %s;", (question_id,))
-        answer_ids = [answer[0] for answer in answers]
-
-        answer_comments = []
-        for answer_id in answer_ids:
-            answer_comments.append(execute_sql_statement("SELECT * FROM comment WHERE answer_id = %s", (answer_id,)))
-
-        tag_id_list = execute_sql_statement("SELECT tag_id FROM question_tag WHERE question_id = %s;", (question_id,))
-        question_tags = []
-        tag_ids = []
-
-        for tags in tag_id_list:
-            question_tags.append(execute_sql_statement("SELECT name FROM tag WHERE id = %s;", (tags[0],))[0][0])
-            tag_ids.append(execute_sql_statement("SELECT id FROM tag WHERE id = %s;", (tags[0],))[0][0])
-
-        question_tags = zip(tag_ids, question_tags)
-        return render_template('display_question.html',
-                               line=question_line,
-                               fieldnames=constants.FIELDNAMES,
-                               answers=answers,
-                               question_comments=question_comments,
-                               answer_comments=answer_comments,
-                               question_id=question_id,
-                               question_tags=question_tags)
+def display_question(question_id):
+    question_line = execute_sql_statement("SELECT * FROM question WHERE id =  %s;", (question_id,))[0]
+    question_comments = execute_sql_statement("SELECT * FROM comment WHERE question_id = %s;", (question_id,))
+    answer_data = question_module.get_question_answers_for_display(question_id)
+    question_tags = question_module.get_question_tags_for_display(question_id)
+    return render_template('display_question.html',
+                           line=question_line,
+                           question_comments=question_comments,
+                           fieldnames=constants.FIELDNAMES,
+                           answers=answer_data[0],
+                           answer_comments=answer_data[1],
+                           question_id=question_id,
+                           question_tags=question_tags)
 
 
 @app.route('/question/<int:question_id>/edit', methods=['POST', 'GET'])
@@ -128,7 +114,7 @@ def edit_question(question_id):
                               WHERE id=%s;
                               """,
                               (q_time, q_view_number, q_vote_number, q_title, q_message, q_img, question_id))
-        return redirect(url_for('question', question_id=question_id))
+        return redirect(url_for('display_question', question_id=question_id))
 
     data = execute_sql_statement("SELECT * FROM question WHERE id ="+str(question_id)+";")[0]
 
@@ -188,13 +174,13 @@ def post_answer(question_id):
                        INSERT INTO answer (submission_time, vote_number, question_id, message, image)
                        VALUES (%s, %s, %s, %s, %s);
                        """, (a_time, a_vote_number, question_id, a_message, answer_image))
-        return redirect(url_for('question', question_id=question_id))
+        return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/<int:answer_id>/del', methods=["POST"])
 def delete_answer(question_id, answer_id):
     execute_sql_statement("DELETE FROM answer WHERE id= %s;", (answer_id,))
-    return redirect(url_for('question', question_id=question_id))
+    return redirect(url_for('display_question', question_id=question_id))
 
 
 ###############################################################################################################
@@ -203,13 +189,13 @@ def delete_answer(question_id, answer_id):
 @app.route('/question/<int:question_id>/<int:answer_id>/<vote_direction>')
 def vote_answer(question_id, answer_id, vote_direction):
     vote.change_vote('answer', answer_id, vote_direction)
-    return redirect(url_for('question', question_id=question_id))
+    return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/vote/<vote_direction>')
 def vote_question(question_id, vote_direction):
     vote.change_vote('question', question_id, vote_direction)
-    return redirect(url_for('question', question_id=question_id))
+    return redirect(url_for('display_question', question_id=question_id))
 
 
 ###############################################################################################################
@@ -244,7 +230,7 @@ def post_question_comment(question_id):
                                                 VALUES (%s, NULL, %s, %s, %s);""",
                                               (question_id, comment_message, comment_time, comment_edits))
 
-        return redirect(url_for('question', question_id=question_id))
+        return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route("/answer/<int:answer_id>/new-comment", methods=['GET', 'POST'])
@@ -263,7 +249,7 @@ def post_answer_comment(answer_id):
                                  VALUES (NULL, %s, %s, %s, %s);""",
                               (answer_id, comment_message, comment_time, comment_edits))
 
-        return redirect(url_for('question', question_id=answer_line[3]))
+        return redirect(url_for('display_question', question_id=answer_line[3]))
 
 
 @app.route('/comments/<int:comment_id>/del', methods=["POST"])
@@ -277,7 +263,7 @@ def delete_comment(comment_id):
         question_id = execute_sql_statement("""SELECT question_id FROM answer WHERE id = %s;""", (answer_id,))[0][0]
 
     execute_sql_statement("DELETE FROM comment WHERE id= %s;", (comment_id,))
-    return redirect(url_for('question', question_id=question_id))
+    return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/comments/<int:comment_id>/edit', methods=["POST", "GET"])
@@ -317,7 +303,7 @@ def edit_comment(comment_id):
                                   """,
                                   (request.form['comment_message'], datetime.now(), comment_id))
 
-            return redirect(url_for('question', question_id=question_id))
+            return redirect(url_for('display_question', question_id=question_id))
 
         else:
             answer_id = execute_sql_statement("""SELECT answer_id FROM comment WHERE id = %s;""", (comment_id,))[0][0]
@@ -337,7 +323,7 @@ def edit_comment(comment_id):
 @app.route('/question/<question_id>/tag/<tag_id>/delete')
 def tag_delete(question_id, tag_id):
     execute_sql_statement("DELETE FROM question_tag WHERE question_id = %s and tag_id = %s;", (question_id, tag_id))
-    return redirect(url_for('question', question_id=question_id))
+    return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/question/<question_id>/new-tag', methods=['POST', 'GET'])
@@ -363,7 +349,7 @@ def new_tag(question_id):
                                   (question_id, tag_id))
         except psycopg2.IntegrityError:
             pass
-        return redirect(url_for('question', question_id=question_id))
+        return redirect(url_for('display_question', question_id=question_id))
 
 
 ###############################################################################################################
