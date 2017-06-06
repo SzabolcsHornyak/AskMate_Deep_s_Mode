@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/main.css">
     <title>Registration</title>
 </head>
+
 <body>
     <form action="/registration" method="post">
-        <p>Username: <input type='text' name='user_name' placeholder='Please enter your Username' minlength="10" required></p>
-        <input id="registration-button" type="submit" value="Register">        
+        <p><h5 style="color: white">Username:</h5><input type='text' name='user_name' minlength="10" required></p>
+        <input class = "btn btn-default" type="submit" value="Register">        
     </form>
 </body>
 </html>
