@@ -126,7 +126,7 @@ def post_answer(question_id):
         else:
             answer_image = ""
 
-        a_time = datetime.now()  # round this bitch or something
+        a_time = datetime.now()  # round this bitch or something!
         a_vote_number = 0
         a_message = str(request.form['answer_message'])
         execute_sql_statement("""
