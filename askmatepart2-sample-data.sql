@@ -5,7 +5,7 @@
 -- Dumped from database version 9.5.6
 -- Dumped by pg_dump version 9.5.6
 
-ALTER TABLE IF EXISTS ONLY public.users DROP CONSTRAINTS IF EXISTS pk_user_id CASCADE;
+ALTER TABLE IF EXISTS ONLY public.users DROP CONSTRAINT IF EXISTS pk_user_id CASCADE;
 ALTER TABLE IF EXISTS ONLY public.question DROP CONSTRAINT IF EXISTS pk_question_id CASCADE;
 ALTER TABLE IF EXISTS ONLY public.answer DROP CONSTRAINT IF EXISTS pk_answer_id CASCADE;
 ALTER TABLE IF EXISTS ONLY public.answer DROP CONSTRAINT IF EXISTS fk_question_id CASCADE;
