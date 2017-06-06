@@ -1,12 +1,11 @@
 from flask import Flask, render_template, url_for, redirect, request
 from werkzeug.utils import secure_filename
-import time
 from datetime import datetime
 import os
 import constants
 import psycopg2
-from utilities import execute_sql_statement
-from askmatepackage import vote, question_module
+from askmate_package.db_handling import execute_sql_statement
+from askmate_package import vote_module, question_module
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -147,13 +146,13 @@ def delete_answer(question_id, answer_id):
 ###############################################################################################################
 @app.route('/question/<int:question_id>/<int:answer_id>/<vote_direction>')
 def vote_answer(question_id, answer_id, vote_direction):
-    vote.change_vote('answer', answer_id, vote_direction)
+    vote_module.change_vote('answer', answer_id, vote_direction)
     return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/vote/<vote_direction>')
 def vote_question(question_id, vote_direction):
-    vote.change_vote('question', question_id, vote_direction)
+    vote_module.change_vote('question', question_id, vote_direction)
     return redirect(url_for('display_question', question_id=question_id))
 
 
