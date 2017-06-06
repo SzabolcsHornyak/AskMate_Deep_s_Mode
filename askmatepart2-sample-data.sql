@@ -5,6 +5,7 @@
 -- Dumped from database version 9.5.6
 -- Dumped by pg_dump version 9.5.6
 
+ALTER TABLE IF EXISTS ONLY public.users DROP CONSTRAINTS IF EXISTS pk_user_id CASCADE;
 ALTER TABLE IF EXISTS ONLY public.question DROP CONSTRAINT IF EXISTS pk_question_id CASCADE;
 ALTER TABLE IF EXISTS ONLY public.answer DROP CONSTRAINT IF EXISTS pk_answer_id CASCADE;
 ALTER TABLE IF EXISTS ONLY public.answer DROP CONSTRAINT IF EXISTS fk_question_id CASCADE;
@@ -26,6 +27,14 @@ CREATE TABLE question (
     title text,
     message text,
     image text
+);
+
+DROP TABLE IF EXISTS public.users;
+DROP SEQUENCE IF EXISTS public.users_id_seq;
+CREATE TABLE users (
+    id serial NOT NULL,
+    username VARCHAR(255),
+    registration_time timestamp without time zone
 );
 
 DROP TABLE IF EXISTS public.answer;
@@ -68,6 +77,9 @@ CREATE TABLE tag (
 ALTER TABLE ONLY answer
     ADD CONSTRAINT pk_answer_id PRIMARY KEY (id);
 
+ALTER TABLE ONLY users
+    ADD CONSTRAINT pk_users_id PRIMARY KEY (id);
+
 ALTER TABLE ONLY comment
     ADD CONSTRAINT pk_comment_id PRIMARY KEY (id);
 
@@ -98,6 +110,9 @@ ALTER TABLE ONLY comment
 ALTER TABLE ONLY question_tag
     ADD CONSTRAINT fk_tag_id FOREIGN KEY (tag_id) REFERENCES tag(id)
     ON UPDATE CASCADE ON DELETE CASCADE;
+
+INSERT INTO users VALUES (1, 'kisbéla', '2017-06-06 13:12:00');
+SELECT pg_catalog.setval('users_id_seq', 1, true);
 
 INSERT INTO question VALUES (0, '2017-04-28 08:29:00', 29, 7, 'How to make lists in Python?', 'I am totally new to this, any hints?', NULL);
 INSERT INTO question VALUES (1, '2017-04-29 09:19:00', 15, 9, 'Wordpress loading multiple jQuery Versions', 'I developed a plugin that uses the jquery booklet plugin (http://builtbywill.com/booklet/#/) this plugin binds a function to $ so I cann call $(".myBook").booklet();
