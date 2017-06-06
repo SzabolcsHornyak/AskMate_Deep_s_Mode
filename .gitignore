@@ -1,7 +1,7 @@
 ./vscode
 /static/data/question.csv
 /static/conn_str.txt
-
+requirements.txt
 # Created by https://www.gitignore.io/api/python,visualstudiocode
 
 ### Python ###

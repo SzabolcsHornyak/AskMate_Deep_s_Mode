@@ -5,7 +5,6 @@ from datetime import datetime
 import os
 import constants
 import psycopg2
-from utilities import encode_this
 from utilities import execute_sql_statement
 from askmatepackage import vote, question_module
 

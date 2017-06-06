@@ -2,11 +2,6 @@ import base64
 import psycopg2
 
 
-def encode_this(string):
-    '''Takes a human-readable string and encodes it to a base64 value.'''
-    return base64.b64encode(string.encode('utf-8')).decode('utf-8')
-
-
 def execute_sql_statement(sql_statement, values=tuple()):
     # setup connection string
     with open('static/conn_str.txt', 'r') as file:
