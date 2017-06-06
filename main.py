@@ -13,6 +13,23 @@ app.config['UPLOAD_FOLDER'] = constants.UPLOAD_FOLDER
 
 
 ###############################################################################################################
+#                                    REGISTRATION                                                             #
+###############################################################################################################
+@app.route('/registration', methods=['POST', 'GET'])
+def registration():
+    '''
+    As a user I would like to have the possibility to register a new user into the system. (/registration). A user
+    only has a username and the date of the registration.
+    '''
+    user_name = request.form['user_name']
+    time_of_registration = datetime.now()
+    user_reputation = 0
+    execute_sql_statement("""INSERT INTO users (username, registration_time, reputation) VALUES (%s, %s, %s)""",
+                          (user_name, time_of_registration, user_reputation))
+    return redirect(url_for('get_list_of_questions'))
+
+
+###############################################################################################################
 #                                     LIST QUESTIONS                                                          #
 ###############################################################################################################
 @app.route('/')
