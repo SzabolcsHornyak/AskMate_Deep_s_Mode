@@ -7,21 +7,30 @@ import constants
 import psycopg2
 from utilities import encode_this
 from utilities import execute_sql_statement
+from askmatepackage import vote, question_module
 
 app = Flask(__name__, static_url_path='/static')
 
 app.config['UPLOAD_FOLDER'] = constants.UPLOAD_FOLDER
 
 
+###############################################################################################################
+#                                     LIST QUESTIONS                                                          #
+###############################################################################################################
 @app.route('/')
-def get_list_5():
+def get_limited_list_of_questions():
+    '''
+    Delivers a list of questions from question table, ordered by submission time, limited their number to five.
+    '''
     data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC limit 5;")
-    sort_direction = 'asc'
-    return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
+    return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir='asc')
 
 
 @app.route('/list')
-def list():
+def get_list_of_questions():
+    '''
+    Delivers a list of all questions from question table.
+    '''
     data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC;")
     sort_direction = 'asc'
     list_from_query_string = request.query_string.decode('utf-8').split('=')
@@ -41,159 +50,55 @@ def list():
     return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
 
 
+###############################################################################################################
+#                                           QUESTION                                                          #
+###############################################################################################################
 @app.route('/newquestion', methods=['POST', 'GET'])
 def new_question():
     if request.method == 'POST':
-        q_time = datetime.now()  # round this bitch or something
-        q_view_number = 0
-        q_vote_number = 0
-        q_title = str(request.form['question_title'])
-        q_message = str(request.form['question_text'])
-        filex = request.files['file']
-        if filex.filename != '':
-            if filex:
-                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
-                q_img = 'images/'+secure_filename(filex.filename)
-        else:
-            q_img = ''
-        execute_sql_statement("""
-                       INSERT INTO question (submission_time, view_number, vote_number, title, message, image)
-                       VALUES (%s, %s, %s, %s, %s, %s);
-                       """, (q_time, q_view_number, q_vote_number, q_title, q_message, q_img))
-        return redirect(url_for('list'))
+        q_img = question_module.new_question_image_handling(request.files['file'], app, True)
+        question_module.insert_new_question_into_database(request.form, q_img)
+        return redirect(url_for('get_list_of_questions'))
     return render_template('post_question.html', data=[])
 
 
 @app.route('/question/<int:question_id>')
-def question(question_id):
-        question_line = execute_sql_statement("SELECT * FROM question WHERE id =  %s;", (question_id,))[0]
-        answers = execute_sql_statement("SELECT * FROM answer WHERE question_id = %s;", (question_id,))
-        question_comments = execute_sql_statement("SELECT * FROM comment WHERE question_id = %s;", (question_id,))
-        answer_ids = [answer[0] for answer in answers]
-
-        answer_comments = []
-        for answer_id in answer_ids:
-            answer_comments.append(execute_sql_statement("SELECT * FROM comment WHERE answer_id = %s", (answer_id,)))
-
-        tag_id_list = execute_sql_statement("SELECT tag_id FROM question_tag WHERE question_id = %s;", (question_id,))
-        question_tags = []
-        tag_ids = []
-
-        for tags in tag_id_list:
-            question_tags.append(execute_sql_statement("SELECT name FROM tag WHERE id = %s;", (tags[0],))[0][0])
-            tag_ids.append(execute_sql_statement("SELECT id FROM tag WHERE id = %s;", (tags[0],))[0][0])
-
-        question_tags = zip(tag_ids, question_tags)
-        return render_template('display_question.html',
-                               line=question_line,
-                               fieldnames=constants.FIELDNAMES,
-                               answers=answers,
-                               question_comments=question_comments,
-                               answer_comments=answer_comments,
-                               question_id=question_id,
-                               question_tags=question_tags)
-
-
-@app.route('/question/<int:question_id>/<int:answer_id>/del', methods=["POST"])
-def delete_answer(question_id, answer_id):
-    execute_sql_statement("DELETE FROM answer WHERE id= %s;", (answer_id,))
-    return redirect(url_for('question', question_id=question_id))
-
-
-@app.route('/question/<int:question_id>/del', methods=["POST"])
-def delete_question(question_id):
-    # LATER! TODO
-    '''
-    # Delete image if exist
-    data_set = utilities.read_and_decode('./static/data/question.csv')
-    question_line = utilities.find_line_by_id(data_set, question_id)
-    print(question_line[6])
-    if question_line[6] != '':
-        if os.path.isfile('static/' + question_line[6]):
-            os.remove('static/' + question_line[6])
-    '''
-    execute_sql_statement("DELETE FROM question WHERE id=%s;", (question_id,))
-    return redirect(url_for('list'))
-
-
-###############################################################################################################
-#                                               VOTE                                                        #
-###############################################################################################################
-
-
-@app.route('/question/<int:question_id>/<int:answer_id>/<vote>')
-def vote_answer(question_id, answer_id, vote):
-    vote_nr = execute_sql_statement("SELECT vote_number FROM answer WHERE id = %s;", (answer_id,))[0][0]
-
-    if vote == 'vote-up':
-        vote_nr += 1
-    elif vote == 'vote-down':
-        vote_nr -= 1
-
-    execute_sql_statement("UPDATE answer SET vote_number= %s WHERE id = %s;", (vote_nr, answer_id))
-
-    return redirect(url_for('question', question_id=question_id))
-
-
-@app.route('/question/<int:question_id>/vote/<vote>')
-def vote_question(question_id, vote):
-    vote_nr = execute_sql_statement("SELECT vote_number FROM question WHERE id = %s;", (question_id,))[0][0]
-
-    if vote == 'vote-up':
-        vote_nr += 1
-    elif vote == 'vote-down':
-        vote_nr -= 1
-
-    execute_sql_statement("UPDATE question SET vote_number= %s WHERE id = %s;", (vote_nr, question_id))
-
-    return redirect(url_for('question', question_id=question_id))
+def display_question(question_id):
+    question_line = execute_sql_statement("SELECT * FROM question WHERE id =  %s;", (question_id,))[0]
+    question_comments = execute_sql_statement("SELECT * FROM comment WHERE question_id = %s;", (question_id,))
+    answer_data = question_module.get_question_answers_for_display(question_id)
+    question_tags = question_module.get_question_tags_for_display(question_id)
+    return render_template('display_question.html',
+                           line=question_line,
+                           question_comments=question_comments,
+                           fieldnames=constants.FIELDNAMES,
+                           answers=answer_data[0],
+                           answer_comments=answer_data[1],
+                           question_id=question_id,
+                           question_tags=question_tags)
 
 
 @app.route('/question/<int:question_id>/edit', methods=['POST', 'GET'])
 def edit_question(question_id):
     if request.method == 'POST':
-        q_time = datetime.now()  # round this bitch or something
-        q_view_number = 0
-        q_vote_number = 0
-        q_title = str(request.form['question_title'])
-        q_message = str(request.form['question_text'])
-        filex = request.files['file']
-        if filex.filename != '':
-            if filex:
-                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
-                q_img = 'images/'+secure_filename(filex.filename)
-        else:
-            q_img = ''
-        execute_sql_statement("""
-                              UPDATE question
-                              SET
-                              submission_time=%s,view_number=%s,vote_number=%s,title=%s,message=%s,image=%s
-                              WHERE id=%s;
-                              """,
-                              (q_time, q_view_number, q_vote_number, q_title, q_message, q_img, question_id))
-        return redirect(url_for('question', question_id=question_id))
-
-    data = execute_sql_statement("SELECT * FROM question WHERE id ="+str(question_id)+";")[0]
-
+        q_img = question_module.new_question_image_handling(request.files['file'], app)
+        if q_img:
+            execute_sql_statement("""UPDATE question SET image=%s WHERE id=%s;""", (q_img, question_id))
+        question_module.update_question(request.form, question_id)
+        return redirect(url_for('display_question', question_id=question_id))
+    data = execute_sql_statement("SELECT * FROM question WHERE id=%s;", (question_id,))[0]
     return render_template("post_question.html", data=data, question_id=question_id, get_type='edit')
 
 
-###############################################################################################################
-#                                               SEARCH                                                        #
-###############################################################################################################
-
-
-@app.route('/search')
-def search_results():
-    search_phrase = '%'+str(request.query_string.decode('utf-8'))[2:].lower()+'%'
-    search_result = execute_sql_statement("""SELECT * FROM question
-                                          WHERE (LOWER(message) LIKE %s
-                                          OR LOWER(title) LIKE %s);""", (search_phrase, search_phrase))
-    return render_template('list_questions.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
+@app.route('/question/<int:question_id>/del', methods=["POST"])
+def delete_question(question_id):
+    question_module.delete_image(question_id)
+    execute_sql_statement("DELETE FROM question WHERE id=%s;", (question_id,))
+    return redirect(url_for('get_list_of_questions'))
 
 
 ###############################################################################################################
-#                                               ANSWER                                                        #
+#                                             ANSWER                                                          #
 ###############################################################################################################
 @app.route('/answer/<int:answer_id>')
 def display_answer(answer_id):
@@ -229,7 +134,40 @@ def post_answer(question_id):
                        INSERT INTO answer (submission_time, vote_number, question_id, message, image)
                        VALUES (%s, %s, %s, %s, %s);
                        """, (a_time, a_vote_number, question_id, a_message, answer_image))
-        return redirect(url_for('question', question_id=question_id))
+        return redirect(url_for('display_question', question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/<int:answer_id>/del', methods=["POST"])
+def delete_answer(question_id, answer_id):
+    execute_sql_statement("DELETE FROM answer WHERE id= %s;", (answer_id,))
+    return redirect(url_for('display_question', question_id=question_id))
+
+
+###############################################################################################################
+#                                               VOTE                                                          #
+###############################################################################################################
+@app.route('/question/<int:question_id>/<int:answer_id>/<vote_direction>')
+def vote_answer(question_id, answer_id, vote_direction):
+    vote.change_vote('answer', answer_id, vote_direction)
+    return redirect(url_for('display_question', question_id=question_id))
+
+
+@app.route('/question/<int:question_id>/vote/<vote_direction>')
+def vote_question(question_id, vote_direction):
+    vote.change_vote('question', question_id, vote_direction)
+    return redirect(url_for('display_question', question_id=question_id))
+
+
+###############################################################################################################
+#                                               SEARCH                                                        #
+###############################################################################################################
+@app.route('/search')
+def search_results():
+    search_phrase = '%'+str(request.query_string.decode('utf-8'))[2:].lower()+'%'
+    search_result = execute_sql_statement("""SELECT * FROM question
+                                          WHERE (LOWER(message) LIKE %s
+                                          OR LOWER(title) LIKE %s);""", (search_phrase, search_phrase))
+    return render_template('list_questions.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
 
 
 ###############################################################################################################
@@ -252,7 +190,7 @@ def post_question_comment(question_id):
                                                 VALUES (%s, NULL, %s, %s, %s);""",
                                               (question_id, comment_message, comment_time, comment_edits))
 
-        return redirect(url_for('question', question_id=question_id))
+        return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route("/answer/<int:answer_id>/new-comment", methods=['GET', 'POST'])
@@ -271,7 +209,7 @@ def post_answer_comment(answer_id):
                                  VALUES (NULL, %s, %s, %s, %s);""",
                               (answer_id, comment_message, comment_time, comment_edits))
 
-        return redirect(url_for('question', question_id=answer_line[3]))
+        return redirect(url_for('display_question', question_id=answer_line[3]))
 
 
 @app.route('/comments/<int:comment_id>/del', methods=["POST"])
@@ -285,7 +223,7 @@ def delete_comment(comment_id):
         question_id = execute_sql_statement("""SELECT question_id FROM answer WHERE id = %s;""", (answer_id,))[0][0]
 
     execute_sql_statement("DELETE FROM comment WHERE id= %s;", (comment_id,))
-    return redirect(url_for('question', question_id=question_id))
+    return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/comments/<int:comment_id>/edit', methods=["POST", "GET"])
@@ -325,7 +263,7 @@ def edit_comment(comment_id):
                                   """,
                                   (request.form['comment_message'], datetime.now(), comment_id))
 
-            return redirect(url_for('question', question_id=question_id))
+            return redirect(url_for('display_question', question_id=question_id))
 
         else:
             answer_id = execute_sql_statement("""SELECT answer_id FROM comment WHERE id = %s;""", (comment_id,))[0][0]
@@ -345,7 +283,7 @@ def edit_comment(comment_id):
 @app.route('/question/<question_id>/tag/<tag_id>/delete')
 def tag_delete(question_id, tag_id):
     execute_sql_statement("DELETE FROM question_tag WHERE question_id = %s and tag_id = %s;", (question_id, tag_id))
-    return redirect(url_for('question', question_id=question_id))
+    return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/question/<question_id>/new-tag', methods=['POST', 'GET'])
@@ -371,11 +309,11 @@ def new_tag(question_id):
                                   (question_id, tag_id))
         except psycopg2.IntegrityError:
             pass
-        return redirect(url_for('question', question_id=question_id))
+        return redirect(url_for('display_question', question_id=question_id))
 
 
 ###############################################################################################################
-#                                               OTHERS                                                        #
+#                                       IMAGE HANDLING                                                        #
 ###############################################################################################################
 @app.route("/delete_unused_images")
 def delete_unused_images():
@@ -388,9 +326,9 @@ def delete_unused_images():
                 match.append(db_images[j][0])
     for i in range(len(local_images)):
         if str('images/'+local_images[i]).lower() not in match:
-            del_file = constant.UPLOAD_FOLDER + '/' + local_images[i]
+            del_file = constants.UPLOAD_FOLDER + '/' + local_images[i]
             os.remove(del_file)
-    return redirect(url_for('list'))
+    return redirect(url_for('get_list_of_questions'))
 
 
 def main():
