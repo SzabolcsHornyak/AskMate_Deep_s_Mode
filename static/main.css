@@ -178,3 +178,9 @@ body {
   left: 30%;
   margin-left: -104.5px
 }
+
+#display-user-data {
+  background-color: #7c3757;
+  color: white;
+  padding: 10px;
+}
