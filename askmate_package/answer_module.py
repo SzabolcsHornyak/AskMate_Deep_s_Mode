@@ -13,6 +13,6 @@ def set_to_accepted(answer_id):
 
     execute_sql_statement('''UPDATE answer SET accepted=FALSE WHERE question_id=%s AND accepted=TRUE;''', (qid,))
     execute_sql_statement('''UPDATE answer SET accepted=TRUE WHERE id=%s;''', (answer_id,))
-    # user_module.user_reputation(user_id, 15)
+    user_module.user_reputation(user_id, 15)
 
     return qid
