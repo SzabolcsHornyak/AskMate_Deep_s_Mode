@@ -132,7 +132,6 @@ def post_answer(question_id):
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
         all_users = execute_sql_statement("SELECT username FROM users;")
-
         return render_template('post_answer.html',
                                question_id=question_id,
                                question_title=question_line[4],
@@ -200,18 +199,22 @@ def search_results():
 def post_question_comment(question_id):
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
+        all_users = execute_sql_statement("SELECT username FROM users;")
         return render_template('post_comment_to_question.html',
                                question_id=question_id,
                                question_title=question_line[4],
-                               question_msg=question_line[5])
+                               question_msg=question_line[5],
+                               usernames=all_users)
 
     if request.method == 'POST':
-        comment_time = datetime.now()
+        comment_time = datetime.now().replace(microsecond=0)
         comment_message = request.form['comment_message']
         comment_edits = 0
-        question_line = execute_sql_statement("""INSERT INTO comment (question_id, answer_id, message, submission_time, edited_count)
-                                                VALUES (%s, NULL, %s, %s, %s);""",
-                                              (question_id, comment_message, comment_time, comment_edits))
+        known_user = request.form['username']
+        known_user_id = execute_sql_statement("SELECT id FROM users WHERE username=%s;", (known_user,))[0]
+        question_line = execute_sql_statement("""INSERT INTO comment (question_id, answer_id, message, submission_time, edited_count, user_id)
+                                                VALUES (%s, NULL, %s, %s, %s, %s);""",
+                                              (question_id, comment_message, comment_time, comment_edits, known_user_id))
 
         return redirect(url_for('display_question', question_id=question_id))
 
@@ -220,17 +223,21 @@ def post_question_comment(question_id):
 def post_answer_comment(answer_id):
     answer_line = execute_sql_statement("SELECT * FROM answer WHERE id = %s;", (answer_id,))[0]
     if request.method == 'GET':
+        all_users = execute_sql_statement("SELECT username FROM users;")
         return render_template('post_comment_to_answer.html',
                                answer_id=answer_id,
-                               answer_message=answer_line[4],)
+                               answer_message=answer_line[4],
+                               usernames=all_users)
 
     if request.method == 'POST':
-        comment_time = datetime.now()
+        comment_time = datetime.now().replace(microsecond=0)
         comment_message = request.form['comment_message']
         comment_edits = 0
-        execute_sql_statement("""INSERT INTO comment (question_id, answer_id, message, submission_time, edited_count)
-                                 VALUES (NULL, %s, %s, %s, %s);""",
-                              (answer_id, comment_message, comment_time, comment_edits))
+        known_user = request.form['username']
+        known_user_id = execute_sql_statement("SELECT id FROM users WHERE username=%s;", (known_user,))[0]
+        execute_sql_statement("""INSERT INTO comment (question_id, answer_id, message, submission_time, edited_count, user_id)
+                                 VALUES (NULL, %s, %s, %s, %s, %s);""",
+                              (answer_id, comment_message, comment_time, comment_edits, known_user_id))
 
         return redirect(url_for('display_question', question_id=answer_line[3]))
 

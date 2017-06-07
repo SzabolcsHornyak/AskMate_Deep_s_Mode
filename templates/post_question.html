@@ -35,12 +35,12 @@
         </p>
       </div>
       <div>
-        <p> User </p>
-        <select name="username">
+        <p> User 
+        <select style='color:black' name="username">
           {% for tuple in usernames %}
-            <option value="{{ tuple[0] }}">{{ tuple[0] }}</option>
+            <option style='color:black' value="{{ tuple[0] }}">{{ tuple[0] }}</option>
           {% endfor %}
-        </select>
+        </select></p>
       </div>
 
       <div>

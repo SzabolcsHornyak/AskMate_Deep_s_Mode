@@ -85,12 +85,12 @@ body {
       <h1 id="new-answer-title">Add an answer</h1>
       <form action="/question/{{question_id}}/new-answer" method="post" enctype="multipart/form-data">
           <textarea id="new-answer-textarea" minlength=10 name="answer_message" style="resize:none" rows=5 cols=65 required></textarea><br>
-          <p> User </p>
-          <select name="username">
+          <p>User
+          <select style='color:black' name="username">
             {% for tuple in usernames %}
-              <option value="{{ tuple[0] }}">{{ tuple[0] }}</option>
+              <option style='color:black' value="{{ tuple[0] }}">{{ tuple[0] }}</option>
             {% endfor %}
-          </select>
+          </select></p>
           <input type="file" name="file" accept="image/*">
           <input id="new-answer-add-answer-button" type="submit" value="Add answer">        
       </form>
