@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/static/main.css">
   <body>
 
-    <table id="all-questions-table">
+    <table class="all-questions-table">
       {% for fieldname in fieldnames[:-1] %}
         {% if fieldnames.index(fieldname) in range(0,4) %}
         <th class="all-questions-tablehead">

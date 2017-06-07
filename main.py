@@ -361,8 +361,14 @@ def list_users():
 @app.route('/user/<user_id>')
 def display_user_page(user_id):
     user_data = execute_sql_statement("SELECT * FROM users WHERE id =  %s;", (user_id,))[0]
+    user_questions = execute_sql_statement("SELECT * FROM question WHERE user_id = %s", (user_id,))
+    user_comments = execute_sql_statement("SELECT * FROM comment WHERE user_id = %s", (user_id,))
+    user_answers = execute_sql_statement("SELECT * FROM answer WHERE user_id = %s", (user_id,))
     return render_template('display_user_page.html',
-                           user_data=user_data)
+                           user_data=user_data,
+                           user_questions=user_questions,
+                           user_comments=user_comments,
+                           user_answers=user_answers)
 
 
 def main():
