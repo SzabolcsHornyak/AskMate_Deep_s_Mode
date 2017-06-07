@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="/static/main.css">
   <body>
 
-    <table id="all-questions-table">
+    <table class="all-questions-table">
       {% for fieldname in fieldnames[:-1] %}
         {% if fieldnames.index(fieldname) in range(0,4) %}
         <th class="all-questions-tablehead">
@@ -55,6 +55,12 @@
     </a>
     <a href='/newquestion' class = "btn btn-default">
       <i class="glyphicon glyphicon-question-sign"></i><h5>Ask a question</h5>
+    </a>
+    <a href='/registration' class = "btn btn-default">
+      <i class="glyphicon glyphicon-user"></i><h5>Register Here</h5>
+    </a>
+    <a href='/list-users' class = "btn btn-default">
+      <i class="glyphicon glyphicon-globe"></i><h5>List Users</h5>
     </a>
     <form action="/search" method="get" enctype="multipart/form-data">
       <p class = "btn btn-default" disabled>Search Questions:</p>

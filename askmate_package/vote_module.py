@@ -1,4 +1,4 @@
-from utilities import execute_sql_statement
+from askmate_package.db_handling import execute_sql_statement
 
 
 def vote_up_down(vote_nr, vote_direction):

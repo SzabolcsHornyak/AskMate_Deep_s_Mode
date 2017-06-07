@@ -1,4 +1,4 @@
-from utilities import execute_sql_statement
+from askmate_package.db_handling import execute_sql_statement
 from os import path, remove
 from werkzeug.utils import secure_filename
 from datetime import datetime
@@ -39,14 +39,17 @@ def delete_image(question_id):
 
 
 def insert_new_question_into_database(q_user_input, q_img):
+    known_user = q_user_input['username']
+    known_user_id = execute_sql_statement("SELECT id FROM users WHERE username=%s;", (known_user,))[0]
     execute_sql_statement("""
-                       INSERT INTO question (submission_time, view_number, vote_number, title, message, image)
-                       VALUES (%s, %s, %s, %s, %s, %s);
-                       """, (datetime.now(),
+                       INSERT INTO question (submission_time, view_number, vote_number, title, message, image, user_id)
+                       VALUES (%s, %s, %s, %s, %s, %s, %s);
+                       """, (datetime.now().replace(microsecond=0),
                              0, 0,  # view_number and vote_number
                              str(q_user_input['question_title']),
                              str(q_user_input['question_text']),
-                             q_img))
+                             q_img,
+                             known_user_id))
 
 
 def update_question(q_user_input, question_id):
