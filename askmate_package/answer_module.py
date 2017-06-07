@@ -1,5 +1,5 @@
 from askmate_package.db_handling import execute_sql_statement
-import user_module
+from askmate_package import user_module
 
 
 def set_to_accepted(answer_id):
