@@ -77,7 +77,8 @@ def new_question():
         q_img = question_module.new_question_image_handling(request.files['file'], app, True)
         question_module.insert_new_question_into_database(request.form, q_img)
         return redirect(url_for('get_list_of_questions'))
-    return render_template('post_question.html', data=[])
+    all_users = execute_sql_statement("SELECT username FROM users;")
+    return render_template('post_question.html', data=[], usernames=all_users)
 
 
 @app.route('/question/<int:question_id>')
@@ -130,13 +131,14 @@ def display_answer(answer_id):
 def post_answer(question_id):
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
+        all_users = execute_sql_statement("SELECT username FROM users;")
         return render_template('post_answer.html',
                                question_id=question_id,
                                question_title=question_line[4],
-                               question_msg=question_line[5])
+                               question_msg=question_line[5],
+                               usernames=all_users)
 
     if request.method == 'POST':
-        # refactor this??????
         filex = request.files['file']
         if filex.filename != '':
             if filex:
@@ -145,13 +147,15 @@ def post_answer(question_id):
         else:
             answer_image = ""
 
-        a_time = datetime.now()  # round this bitch or something!
+        a_time = datetime.now().replace(microsecond=0)
         a_vote_number = 0
         a_message = str(request.form['answer_message'])
+        known_user = request.form['username']
+        known_user_id = execute_sql_statement("SELECT id FROM users WHERE username=%s;", (known_user,))[0]
         execute_sql_statement("""
-                       INSERT INTO answer (submission_time, vote_number, question_id, message, image)
-                       VALUES (%s, %s, %s, %s, %s);
-                       """, (a_time, a_vote_number, question_id, a_message, answer_image))
+                       INSERT INTO answer (submission_time, vote_number, question_id, message, image, user_id)
+                       VALUES (%s, %s, %s, %s, %s, %s);
+                       """, (a_time, a_vote_number, question_id, a_message, answer_image, known_user_id))
         return redirect(url_for('display_question', question_id=question_id))
 
 
@@ -167,12 +171,28 @@ def delete_answer(question_id, answer_id):
 @app.route('/question/<int:question_id>/<int:answer_id>/<vote_direction>')
 def vote_answer(question_id, answer_id, vote_direction):
     vote_module.change_vote('answer', answer_id, vote_direction)
+    if vote_direction.lower() == "vote-up":
+        user_id = user_module.userid_from_answer(answer_id)
+        if user_id > 0:
+            user_module.user_reputation(user_id, 10)
+    elif vote_direction.lower() == "vote-down":
+        user_id = user_module.userid_from_answer(answer_id)
+        if user_id > 0:
+            user_module.user_reputation(user_id, -2)
     return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/vote/<vote_direction>')
 def vote_question(question_id, vote_direction):
     vote_module.change_vote('question', question_id, vote_direction)
+    if vote_direction.lower() == "vote-up":
+        user_id = user_module.userid_from_question(question_id)
+        if user_id > 0:
+            user_module.user_reputation(user_id, 5)
+    elif vote_direction.lower() == "vote-down":
+        user_id = user_module.userid_from_question(question_id)
+        if user_id > 0:
+            user_module.user_reputation(user_id, -2)
     return redirect(url_for('display_question', question_id=question_id))
 
 
@@ -195,18 +215,22 @@ def search_results():
 def post_question_comment(question_id):
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
+        all_users = execute_sql_statement("SELECT username FROM users;")
         return render_template('post_comment_to_question.html',
                                question_id=question_id,
                                question_title=question_line[4],
-                               question_msg=question_line[5])
+                               question_msg=question_line[5],
+                               usernames=all_users)
 
     if request.method == 'POST':
-        comment_time = datetime.now()
+        comment_time = datetime.now().replace(microsecond=0)
         comment_message = request.form['comment_message']
         comment_edits = 0
-        question_line = execute_sql_statement("""INSERT INTO comment (question_id, answer_id, message, submission_time, edited_count)
-                                                VALUES (%s, NULL, %s, %s, %s);""",
-                                              (question_id, comment_message, comment_time, comment_edits))
+        known_user = request.form['username']
+        known_user_id = execute_sql_statement("SELECT id FROM users WHERE username=%s;", (known_user,))[0]
+        question_line = execute_sql_statement("""INSERT INTO comment (question_id, answer_id, message, submission_time, edited_count, user_id)
+                                                VALUES (%s, NULL, %s, %s, %s, %s);""",
+                                              (question_id, comment_message, comment_time, comment_edits, known_user_id))
 
         return redirect(url_for('display_question', question_id=question_id))
 
@@ -215,17 +239,21 @@ def post_question_comment(question_id):
 def post_answer_comment(answer_id):
     answer_line = execute_sql_statement("SELECT * FROM answer WHERE id = %s;", (answer_id,))[0]
     if request.method == 'GET':
+        all_users = execute_sql_statement("SELECT username FROM users;")
         return render_template('post_comment_to_answer.html',
                                answer_id=answer_id,
-                               answer_message=answer_line[4],)
+                               answer_message=answer_line[4],
+                               usernames=all_users)
 
     if request.method == 'POST':
-        comment_time = datetime.now()
+        comment_time = datetime.now().replace(microsecond=0)
         comment_message = request.form['comment_message']
         comment_edits = 0
-        execute_sql_statement("""INSERT INTO comment (question_id, answer_id, message, submission_time, edited_count)
-                                 VALUES (NULL, %s, %s, %s, %s);""",
-                              (answer_id, comment_message, comment_time, comment_edits))
+        known_user = request.form['username']
+        known_user_id = execute_sql_statement("SELECT id FROM users WHERE username=%s;", (known_user,))[0]
+        execute_sql_statement("""INSERT INTO comment (question_id, answer_id, message, submission_time, edited_count, user_id)
+                                 VALUES (NULL, %s, %s, %s, %s, %s);""",
+                              (answer_id, comment_message, comment_time, comment_edits, known_user_id))
 
         return redirect(url_for('display_question', question_id=answer_line[3]))
 
@@ -362,6 +390,19 @@ def list_users():
 def accept_answer(answer_id):
     question_id = answer_module.set_to_accepted(answer_id)
     return redirect(url_for('display_question', question_id=question_id))
+
+
+@app.route('/user/<user_id>')
+def display_user_page(user_id):
+    user_data = execute_sql_statement("SELECT * FROM users WHERE id =  %s;", (user_id,))[0]
+    user_questions = execute_sql_statement("SELECT * FROM question WHERE user_id = %s", (user_id,))
+    user_comments = execute_sql_statement("SELECT * FROM comment WHERE user_id = %s", (user_id,))
+    user_answers = execute_sql_statement("SELECT * FROM answer WHERE user_id = %s", (user_id,))
+    return render_template('display_user_page.html',
+                           user_data=user_data,
+                           user_questions=user_questions,
+                           user_comments=user_comments,
+                           user_answers=user_answers)
 
 
 def main():

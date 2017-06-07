@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{{ user_data[1] }}</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+    <div id="display-user-data">
+        <div class="all-questions-table">
+            <h2 id="display-user-name"> {{ user_data[1] }} </h2>
+            <p id="display-user-registration"> registration time: {{ user_data[2] }} </p>
+            <p id="display-user-reputation"> reputation: {{ user_data[3] }} </p>
+        </div>
+
+        <h3> {{ user_data[1] }}'s questions </h3>
+        <table class="all-questions-table">
+            {% for question in user_questions %}
+            <tr> 
+                {% for data in question[1:3] %}
+                <td class="all-questions-tabledata">{{ data }}</td>
+                {% endfor %}
+                <td class="all-questions-tabledata"><a href="/question/{{question[0]}}" style="color:white"> {{ question[4] }} </a></td>
+                {% for data in question[5:] %}
+                <td class="all-questions-tabledata">{{ data }} </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+
+
+        <h3> {{ user_data[1] }}'s answers </h3>
+        <table class="all-questions-table">
+            {% for answer in user_answers %}
+            <tr>
+                {% for data in answer[1:] %}
+                <td class="all-questions-tabledata">{{ data }} </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+
+
+        <h3> {{ user_data[1] }}'s comments </h3>
+        <table class="all-questions-table">
+            {% for comment in user_comments %}
+            <tr> 
+                {% for data in comment[1:] %}
+                <td class="all-questions-tabledata">{{ data }} </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+
+    </div>
+</body>
+</html>

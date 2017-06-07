@@ -4,7 +4,7 @@ body {
   font-family: 'Courier New', Courier, monospace
 }
 
-#all-questions-table { 
+.all-questions-table { 
   table-layout: auto;
   border: 2px solid black 
 }
@@ -179,8 +179,15 @@ body {
   margin-left: -104.5px
 }
 
+
 #accepted-answer {
   width: 75px;
   height: 75px;
   margin-left: 800px;
+}
+
+#display-user-data {
+  background-color: #7c3757;
+  color: white;
+  padding: 10px;
 }
