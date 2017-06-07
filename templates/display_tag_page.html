@@ -4,16 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/main.css">
-    <title>Registration</title>
 </head>
-
 <body>
-    <form action="/registration" method="post">
-        <p><h5 style="color: white">Username:</h5><input type='text' name='user_name' minlength="10" required></p>
-        <input class = "btn btn-default" type="submit" value="Register">        
-    </form>
+    <table class="all-questions-table">
+        <th class="all-questions-tablehead"> tag name </th>
+        <th class="all-questions-tablehead"> tag count </th>
+        {% for tag in tag_list %}
+        <tr>
+          {% for tag_data in tag %}
+            <td class="all-questions-tabledata"> {{ tag_data }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
     <a href='/list' class = "btn btn-default">
       <i class="glyphicon glyphicon-th-list"></i><h5>View Full List</h5>
     </a>
