@@ -358,6 +358,15 @@ def new_tag(question_id):
         return redirect(url_for('display_question', question_id=question_id))
 
 
+@app.route('/tags')
+def list_tags():
+    tags = execute_sql_statement("""SELECT tag.name, count(tag_id)
+                                    FROM question_tag JOIN tag
+                                    ON id=tag_id GROUP BY tag.name;""")
+    return render_template('display_tag_page.html',
+                           tag_list=tags)
+
+
 ###############################################################################################################
 #                                       IMAGE HANDLING                                                        #
 ###############################################################################################################
