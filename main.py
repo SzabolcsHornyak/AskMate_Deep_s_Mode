@@ -5,7 +5,7 @@ import os
 import constants
 import psycopg2
 from askmate_package.db_handling import execute_sql_statement
-from askmate_package import vote_module, question_module
+from askmate_package import vote_module, question_module, user_module
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -347,6 +347,15 @@ def delete_unused_images():
             del_file = constants.UPLOAD_FOLDER + '/' + local_images[i]
             os.remove(del_file)
     return redirect(url_for('get_list_of_questions'))
+
+
+###############################################################################################################
+#                                              USERS                                                          #
+###############################################################################################################
+@app.route('/list-users')
+def list_users():
+    users = user_module.get_user_list()
+    return render_template('list_users.html', users=users)
 
 
 def main():
