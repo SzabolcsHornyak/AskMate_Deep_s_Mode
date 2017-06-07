@@ -182,11 +182,11 @@ def vote_answer(question_id, answer_id, vote_direction):
 def vote_question(question_id, vote_direction):
     vote_module.change_vote('question', question_id, vote_direction)
     if vote_direction.lower() == "vote-up":
-        user_id = user_module.userid_from_question(answer_id)
-    if user_id > 0:
+        user_id = user_module.userid_from_question(question_id)
+        if user_id > 0:
             user_module.user_reputation(user_id, 5)
     elif vote_direction.lower() == "vote-down":
-        user_id = user_module.userid_from_answer(answer_id)
+        user_id = user_module.userid_from_question(question_id)
         if user_id > 0:
             user_module.user_reputation(user_id, -2)
     return redirect(url_for('display_question', question_id=question_id))
