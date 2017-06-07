@@ -11,7 +11,7 @@ def get_user_list():
 
 
 def user_reputation(user_id=0, change_rep=0):
-    """This function change the user reputation"""
+    """This function changes the user reputation"""
     if user_id != 0 and change_rep != 0:
         if str(change_rep)[0] == '-':
             psql_query = """
@@ -45,11 +45,11 @@ def userid_from_answer(answer_id=0):
     return 0
 
 
-def userid_from_question(answer_id=0):
+def userid_from_question(question_id=0):
     """Get back the user id based on answer_id"""
     user_id = 0
-    if answer_id > 0:
-        psql_query = "SELECT user_id FROM answer WHERE id = " + str(answer_id)
+    if question_id > 0:
+        psql_query = "SELECT user_id FROM question WHERE id = " + str(question_id)
         user_id = execute_sql_statement(psql_query)[0][0]
         if user_id > 0:
             return user_id
