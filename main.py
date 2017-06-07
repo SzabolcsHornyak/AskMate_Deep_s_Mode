@@ -5,7 +5,7 @@ import os
 import constants
 import psycopg2
 from askmate_package.db_handling import execute_sql_statement
-from askmate_package import vote_module, question_module, user_module
+from askmate_package import vote_module, question_module, user_module, answer_module
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -356,6 +356,12 @@ def delete_unused_images():
 def list_users():
     users = user_module.get_user_list()
     return render_template('list_users.html', users=users)
+
+
+@app.route('/answer/<int:answer_id>/accept')
+def accept_answer(answer_id):
+    question_id = answer_module.set_to_accepted(answer_id)
+    return redirect(url_for('display_question', question_id=question_id))
 
 
 def main():
