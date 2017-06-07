@@ -10,6 +10,9 @@
 </head>
 <body>
     <table class="all-questions-table">
+        <th class="all-questions-tablehead">User name</th>
+        <th class="all-questions-tablehead">Registration time</th>
+        <th class="all-questions-tablehead">Reputation</th>
         {% for row in users %}
             <tr> 
                 <td class="all-questions-tabledata"> <a href="/user/{{row[0]}}" style="color:white"> {{ row[1] }} </a></td>
@@ -33,6 +36,9 @@
     </a>
     <a href='/list-users' class = "btn btn-default">
       <i class="glyphicon glyphicon-globe"></i><h5>List Users</h5>
+    </a>
+    <a href='/tags' class = "btn btn-default">
+      <i class="glyphicon glyphicon-tags"></i><h5>Tags</h5>
     </a>
 </body>
 </html>

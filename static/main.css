@@ -191,3 +191,11 @@ body {
   color: white;
   padding: 10px;
 }
+
+#user-registration-form {
+    border: 1px solid grey;
+    padding: 5px;
+    text-align: left;
+    color: #e7fdf3;
+    background-color: #7c3757;
+}
