@@ -178,3 +178,9 @@ body {
   left: 30%;
   margin-left: -104.5px
 }
+
+#accepted-answer {
+  width: 75px;
+  height: 75px;
+  margin-left: 800px;
+}
