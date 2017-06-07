@@ -115,6 +115,9 @@
        {% if answer[5] %}
         <img src="/static/{{answer[5]}}" style="max-width: 200px">
        {% endif %}
+       {% if answer[6] %}
+        <img id="accepted-answer" src="/static/images/check_mark.png">
+       {% endif %}
     </div>
   </div>
   <div class="display-question-answer-buttons col-md-4">
@@ -136,6 +139,11 @@
     <div>
       <a href='../answer/{{answer[0]}}' class='btn btn-default edit-button'>
         <i class="glyphicon glyphicon-eye-open"></i>
+      </a>
+    </div>
+    <div>
+      <a href='/answer/{{answer[0]}}/accept' class='btn btn-default edit-button'>
+        <i class="glyphicon glyphicon-ok"></i>
       </a>
     </div>
     <div>
