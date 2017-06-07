@@ -77,7 +77,8 @@ def new_question():
         q_img = question_module.new_question_image_handling(request.files['file'], app, True)
         question_module.insert_new_question_into_database(request.form, q_img)
         return redirect(url_for('get_list_of_questions'))
-    return render_template('post_question.html', data=[])
+    all_users = execute_sql_statement("SELECT username FROM users;")
+    return render_template('post_question.html', data=[], usernames=all_users)
 
 
 @app.route('/question/<int:question_id>')
@@ -130,13 +131,15 @@ def display_answer(answer_id):
 def post_answer(question_id):
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
+        all_users = execute_sql_statement("SELECT username FROM users;")
+
         return render_template('post_answer.html',
                                question_id=question_id,
                                question_title=question_line[4],
-                               question_msg=question_line[5])
+                               question_msg=question_line[5],
+                               usernames=all_users)
 
     if request.method == 'POST':
-        # refactor this??????
         filex = request.files['file']
         if filex.filename != '':
             if filex:
@@ -145,13 +148,15 @@ def post_answer(question_id):
         else:
             answer_image = ""
 
-        a_time = datetime.now()  # round this bitch or something!
+        a_time = datetime.now().replace(microsecond=0)
         a_vote_number = 0
         a_message = str(request.form['answer_message'])
+        known_user = request.form['username']
+        known_user_id = execute_sql_statement("SELECT id FROM users WHERE username=%s;", (known_user,))[0]
         execute_sql_statement("""
-                       INSERT INTO answer (submission_time, vote_number, question_id, message, image)
-                       VALUES (%s, %s, %s, %s, %s);
-                       """, (a_time, a_vote_number, question_id, a_message, answer_image))
+                       INSERT INTO answer (submission_time, vote_number, question_id, message, image, user_id)
+                       VALUES (%s, %s, %s, %s, %s, %s);
+                       """, (a_time, a_vote_number, question_id, a_message, answer_image, known_user_id))
         return redirect(url_for('display_question', question_id=question_id))
 
 

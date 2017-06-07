@@ -35,6 +35,15 @@
         </p>
       </div>
       <div>
+        <p> User </p>
+        <select name="username">
+          {% for tuple in usernames %}
+            <option value="{{ tuple[0] }}">{{ tuple[0] }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
         <p>Image
         <br>
           <input class ="new-question-wtf" type="text" name="question_img" size="70" value="{{data[6]}}"><br>
@@ -52,6 +61,7 @@
           <p><input class="single-question-submit-button" type="submit" value="SUBMIT"></p>
         {% endif %}
       </div>
+
       <a href='/list' class = "btn btn-default">
         <i class="glyphicon glyphicon-list"></i>
         <h5>Back to the list</h5>
