@@ -84,6 +84,7 @@ def new_question():
 @app.route('/question/<int:question_id>')
 def display_question(question_id):
     question_line = execute_sql_statement("SELECT * FROM question WHERE id =  %s;", (question_id,))[0]
+    question_user = execute_sql_statement("SELECT username FROM users WHERE id= %s;", (question_line[7],))[0][0]
     question_comments = execute_sql_statement("SELECT * FROM comment WHERE question_id = %s;", (question_id,))
     answer_data = question_module.get_question_answers_for_display(question_id)
     question_tags = question_module.get_question_tags_for_display(question_id)
@@ -94,7 +95,8 @@ def display_question(question_id):
                            answers=answer_data[0],
                            answer_comments=answer_data[1],
                            question_id=question_id,
-                           question_tags=question_tags)
+                           question_tags=question_tags,
+                           question_user=question_user)
 
 
 @app.route('/question/<int:question_id>/edit', methods=['POST', 'GET'])
