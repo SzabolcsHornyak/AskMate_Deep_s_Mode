@@ -34,14 +34,16 @@
           <textarea class ="new-question-wtf" name="question_text" minlength="10" rows="15" cols="70" required>{{data[5]}}</textarea>
         </p>
       </div>
-      <div>
-        <p> User 
-        <select style='color:black' name="username">
-          {% for tuple in usernames %}
-            <option style='color:black' value="{{ tuple[0] }}">{{ tuple[0] }}</option>
-          {% endfor %}
-        </select></p>
-      </div>
+      {% if get_type != 'edit' %}
+        <div>
+          <p> User 
+          <select style='color:black' name="username">
+            {% for tuple in usernames %}
+              <option style='color:black' value="{{ tuple[0] }}">{{ tuple[0] }}</option>
+            {% endfor %}
+          </select></p>
+        </div>
+      {% endif %}
 
       <div>
         <p>Image

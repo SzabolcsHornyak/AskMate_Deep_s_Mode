@@ -19,12 +19,14 @@
       <h1 id="new-comment-title">{% if not comment_message %} Add a {% else %} Edit {% endif %} comment</h1>
       <form action="{% if not comment_message %}/question/{{question_id}}/new-comment{%else%}/comments/{{comment_id}}/edit{%endif%}" method="POST" enctype="multipart/form-data">
           <textarea id="new-comment-textarea" minlength=10 name="comment_message" style="resize:none" rows=5 cols=65 required>{{ comment_message }}</textarea><br>
+        {% if not comment_message %}
           <p>User
           <select style='color:black' name="username">
             {% for tuple in usernames %}
               <option style='color:black' value="{{ tuple[0] }}">{{ tuple[0] }}</option>
             {% endfor %}
           </select></p>
+        {% endif %}
           <input id="new-comment-add-comment-button" type="submit" value="{% if not comment_message %} Add {% else %} Edit {% endif %} comment ">
       </form>
       <a href='/question/{{question_id}}' class = "btn btn-default">
