@@ -11,13 +11,15 @@ def get_user_list():
 
 
 def user_reputation(user_id=0, change_rep=0):
-    """This function changes the user reputation"""
+    """
+    This function changes the user reputation.
+    """
     if user_id != 0 and change_rep != 0:
         if str(change_rep)[0] == '-':
             psql_query = """
             UPDATE users
             SET
-                reputation = reputation - """ + str(change_rep)[1:] + """
+            reputation = reputation - """ + str(change_rep)[1:] + """
             WHERE
             id = """ + str(user_id) + """
             """
@@ -59,6 +61,9 @@ def userid_from_question(question_id=0):
 
 
 def get_all_users_dict():
+    """
+    Makes a dictionary from the users table where the  keys are the usernames and the corresponding ids are the values.
+    """
     users_list = execute_sql_statement('''SELECT id, username FROM users;''')
     users_dict = {pair[1]: pair[0] for pair in users_list}
 
