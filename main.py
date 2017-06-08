@@ -227,7 +227,10 @@ def search_results():
     search_result = execute_sql_statement("""SELECT * FROM question
                                           WHERE (LOWER(message) LIKE %s
                                           OR LOWER(title) LIKE %s);""", (search_phrase, search_phrase))
-    return render_template('list_questions.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
+
+    users_dict = user_module.get_all_users_dict()
+    return render_template('list_questions.html',
+                           data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc', users_dict=users_dict)
 
 
 ###############################################################################################################
