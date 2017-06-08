@@ -27,6 +27,10 @@
           {% for item in line %}
             {% if loop.index==7 and item %}
             <td class="all-questions-tabledata"><img src="/static/{{item}}" style="max-width: 200px; max-height: 150px;"></td>
+            {% elif loop.index==8 %}
+            <td class="all-questions-tabledata">
+              <a href="/user/{{users_dict[item]}}" style="color:white">{{item}}</a>
+            </td>
             {% else %}
             <td class="all-questions-tabledata"> {{ item }}</td>
             {% endif %}

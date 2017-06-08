@@ -56,3 +56,10 @@ def userid_from_question(question_id=0):
         else:
             return 0
     return 0
+
+
+def get_all_users_dict():
+    users_list = execute_sql_statement('''SELECT id, username FROM users;''')
+    users_dict = {pair[1]: pair[0] for pair in users_list}
+
+    return users_dict
