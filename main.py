@@ -40,7 +40,12 @@ def get_limited_list_of_questions():
     '''
     Delivers a list of questions from question table, ordered by submission time, limited their number to five.
     '''
-    data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC limit 5;")
+    data_set = execute_sql_statement("""SELECT question.id, question.submission_time, question.view_number,
+                                        question.vote_number, question.title, question.message,
+                                        question.image, users.username
+                                        FROM question JOIN users ON (question.user_id=users.id)
+                                        ORDER BY submission_time DESC
+                                        LIMIT 5;""")
     return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir='asc')
 
 
