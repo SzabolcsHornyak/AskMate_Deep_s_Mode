@@ -38,3 +38,9 @@ def execute_sql_statement(sql_statement, values=tuple()):
         if conn:
             # conn.commit() leaving it here for future testing to see how it works
             conn.close()
+
+
+def get_user_dict():
+    ids = [row[0] for row in execute_sql_statement("SELECT id FROM users;")]
+    usernames = [row[0] for row in execute_sql_statement("SELECT username FROM users;")]
+    return dict(zip(ids, usernames))
