@@ -5,6 +5,9 @@ from datetime import datetime
 
 
 def get_question_tags_for_display(question_id):
+    """
+    This function returns the tag_ids(list) and question tags(list), found by the question_id as a 2d list.
+    """
     tag_id_list = execute_sql_statement("SELECT tag_id FROM question_tag WHERE question_id = %s;", (question_id,))
     question_tags = []
     tag_ids = []
@@ -15,48 +18,71 @@ def get_question_tags_for_display(question_id):
 
 
 def get_question_answers_for_display(question_id):
-    questions_answer_rows = execute_sql_statement("SELECT * FROM answer WHERE question_id = %s;", (question_id,))
+    """
+    This function returns the list of answers with matching question_id and corresponding comments.
+    """
+    questions_answer_rows = execute_sql_statement("""SELECT * FROM answer
+                                                     WHERE question_id = %s
+                                                     ORDER BY accepted desc, vote_number DESC, id;""",
+                                                  (question_id,))
     answer_ids = [row[0] for row in questions_answer_rows]
     answer_comments = []
     for answer_id in answer_ids:
-        answer_comments.append(execute_sql_statement("SELECT * FROM comment WHERE answer_id = %s", (answer_id,)))
+        answer_comments.append(execute_sql_statement("SELECT * FROM comment WHERE answer_id = %s;", (answer_id,)))
     return (questions_answer_rows, answer_comments)
 
 
-def new_question_image_handling(filex, app, new_question=False):
-        if filex.filename != '':
-            if filex:
-                filex.save(path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
-                return 'images/'+secure_filename(filex.filename)
-        if new_question:
-            return ''
+def new_question_image_handling(image_file, app, new_question=False):
+    """
+    This function handles existing and non-existing images.
+    """
+    if image_file.filename != '':
+        if image_file:
+            image_file.save(path.join(app.config['UPLOAD_FOLDER'], secure_filename(image_file.filename)))
+            return 'images/'+secure_filename(image_file.filename)
+    if new_question:
+        return ''
 
 
 def delete_image(question_id):
-    q_img = execute_sql_statement("SELECT image from question WHERE id=%s;", (question_id,))[0][0]
-    if q_img and path.isfile('static/' + q_img):
-        remove('static/' + q_img)
+    """
+    Using the question_id this function deletes all the corresponding images.
+    """
+    question_image = execute_sql_statement("SELECT image from question WHERE id=%s;", (question_id,))[0][0]
+    if question_image and path.isfile('static/' + question_image):
+        remove('static/' + question_image)
 
 
-def insert_new_question_into_database(q_user_input, q_img):
-    known_user = q_user_input['username']
+def insert_new_question_into_database(question_user_input, question_image):
+    """
+    This function gets a form object and a path to an image file as parameters
+    and puts theem in the database.
+    """
+    known_user = question_user_input['username']
     known_user_id = execute_sql_statement("SELECT id FROM users WHERE username=%s;", (known_user,))[0]
     execute_sql_statement("""
-                       INSERT INTO question (submission_time, view_number, vote_number, title, message, image, user_id)
-                       VALUES (%s, %s, %s, %s, %s, %s, %s);
-                       """, (datetime.now().replace(microsecond=0),
-                             0, 0,  # view_number and vote_number
-                             str(q_user_input['question_title']),
-                             str(q_user_input['question_text']),
-                             q_img,
-                             known_user_id))
+                          INSERT INTO question (submission_time, view_number,
+                          vote_number, title, message, image, user_id)
+                          VALUES (%s, %s, %s, %s, %s, %s, %s);
+                          """, (datetime.now().replace(microsecond=0),
+                                0, 0,  # view_number and vote_number
+                                str(question_user_input['question_title']),
+                                str(question_user_input['question_text']),
+                                question_image,
+                                known_user_id))
 
 
-def update_question(q_user_input, question_id):
+def update_question(question_user_input, question_id):
+    """
+    Gets a form object and a question_id as parameters and updates the corresponding question
+    with data from the former one.
+    """
     execute_sql_statement("""
                           UPDATE question
                           SET
                           title=%s,message=%s
                           WHERE id=%s;
                           """,
-                          (str(q_user_input['question_title']), str(q_user_input['question_text']), question_id))
+                          (str(question_user_input['question_title']),
+                           str(question_user_input['question_text']),
+                           question_id))

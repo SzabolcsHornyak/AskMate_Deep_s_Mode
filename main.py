@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 import constants
 import psycopg2
-from askmate_package.db_handling import execute_sql_statement
+from askmate_package.db_handling import execute_sql_statement, get_user_dict
 from askmate_package import vote_module, question_module, user_module, answer_module
 
 app = Flask(__name__, static_url_path='/static')
@@ -40,8 +40,16 @@ def get_limited_list_of_questions():
     '''
     Delivers a list of questions from question table, ordered by submission time, limited their number to five.
     '''
-    data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC limit 5;")
-    return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir='asc')
+    data_set = execute_sql_statement("""SELECT question.id, question.submission_time, question.view_number,
+                                        question.vote_number, question.title, question.message,
+                                        question.image, users.username
+                                        FROM question JOIN users ON (question.user_id=users.id)
+                                        ORDER BY submission_time DESC
+                                        LIMIT 5;""")
+
+    users_dict = user_module.get_all_users_dict()
+    return render_template('list_questions.html',
+                           data_set=data_set, fieldnames=constants.FIELDNAMES, dir='asc', users_dict=users_dict)
 
 
 @app.route('/list')
@@ -49,7 +57,11 @@ def get_list_of_questions():
     '''
     Delivers a list of all questions from question table.
     '''
-    data_set = execute_sql_statement("SELECT * FROM question order by submission_time DESC;")
+    data_set = execute_sql_statement("""SELECT question.id, question.submission_time, question.view_number,
+                                        question.vote_number, question.title, question.message,
+                                        question.image, users.username
+                                        FROM question JOIN users ON (question.user_id=users.id)
+                                        ORDER BY submission_time DESC;""")
     sort_direction = 'asc'
     list_from_query_string = request.query_string.decode('utf-8').split('=')
     try:
@@ -57,15 +69,25 @@ def get_list_of_questions():
             column = list_from_query_string[0].encode('utf-8')
             if str(list_from_query_string[1]) == 'asc':
                 sort_direction = 'dsc'
-                data_set = execute_sql_statement("SELECT * FROM question ORDER BY %s DESC;", (column,))
+                data_set = execute_sql_statement("""SELECT question.id, question.submission_time, question.view_number,
+                                                  question.vote_number, question.title, question.message,
+                                                  question.image, users.username
+                                                  FROM question JOIN users ON (question.user_id=users.id)
+                                                  ORDER BY %s DESC;""", (column,))
 
             elif str(list_from_query_string[1]) == 'desc':
                 sort_direction = 'asc'
-                data_set = execute_sql_statement("SELECT * FROM question ORDER BY %s ASC;", (column,))
-
+                data_set = execute_sql_statement("""SELECT question.id, question.submission_time, question.view_number,
+                                                  question.vote_number, question.title, question.message,
+                                                  question.image, users.username
+                                                  FROM question JOIN users ON (question.user_id=users.id)
+                                                  ORDER BY %s ASC;""", (column,))
     except IndexError:
         pass
-    return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
+
+    users_dict = user_module.get_all_users_dict()
+    return render_template('list_questions.html',
+                           data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction, users_dict=users_dict)
 
 
 ###############################################################################################################
@@ -73,6 +95,10 @@ def get_list_of_questions():
 ###############################################################################################################
 @app.route('/newquestion', methods=['POST', 'GET'])
 def new_question():
+    '''
+    Renders the question submission page on GET,
+    inserts the question data into the database on POST request.
+    '''
     if request.method == 'POST':
         q_img = question_module.new_question_image_handling(request.files['file'], app, True)
         question_module.insert_new_question_into_database(request.form, q_img)
@@ -83,10 +109,15 @@ def new_question():
 
 @app.route('/question/<int:question_id>')
 def display_question(question_id):
+    '''
+    Renders the single question display page with answers, comments and tags.
+    '''
     question_line = execute_sql_statement("SELECT * FROM question WHERE id =  %s;", (question_id,))[0]
+    question_user = execute_sql_statement("SELECT username FROM users WHERE id= %s;", (question_line[7],))[0][0]
     question_comments = execute_sql_statement("SELECT * FROM comment WHERE question_id = %s;", (question_id,))
     answer_data = question_module.get_question_answers_for_display(question_id)
     question_tags = question_module.get_question_tags_for_display(question_id)
+    user_dict = get_user_dict()
     return render_template('display_question.html',
                            line=question_line,
                            question_comments=question_comments,
@@ -94,15 +125,21 @@ def display_question(question_id):
                            answers=answer_data[0],
                            answer_comments=answer_data[1],
                            question_id=question_id,
-                           question_tags=question_tags)
+                           question_tags=question_tags,
+                           question_user=question_user,
+                           user_dict=user_dict)
 
 
 @app.route('/question/<int:question_id>/edit', methods=['POST', 'GET'])
 def edit_question(question_id):
+    '''
+    Renders the question submission page with pre-filled data on GET
+    Updates the corresponding record in the database on POST.
+    '''
     if request.method == 'POST':
-        q_img = question_module.new_question_image_handling(request.files['file'], app)
-        if q_img:
-            execute_sql_statement("""UPDATE question SET image=%s WHERE id=%s;""", (q_img, question_id))
+        question_image = question_module.new_question_image_handling(request.files['file'], app)
+        if question_image:
+            execute_sql_statement("""UPDATE question SET image=%s WHERE id=%s;""", (question_image, question_id))
         question_module.update_question(request.form, question_id)
         return redirect(url_for('display_question', question_id=question_id))
     data = execute_sql_statement("SELECT * FROM question WHERE id=%s;", (question_id,))[0]
@@ -111,6 +148,7 @@ def edit_question(question_id):
 
 @app.route('/question/<int:question_id>/del', methods=["POST"])
 def delete_question(question_id):
+    ''' Deletes the question with id=question_id from the database. '''
     question_module.delete_image(question_id)
     execute_sql_statement("DELETE FROM question WHERE id=%s;", (question_id,))
     return redirect(url_for('get_list_of_questions'))
@@ -121,6 +159,7 @@ def delete_question(question_id):
 ###############################################################################################################
 @app.route('/answer/<int:answer_id>')
 def display_answer(answer_id):
+    ''' Renders the answer details page of the answer with id=answer_id '''
     answer_line = execute_sql_statement("SELECT * FROM answer WHERE id =  %s;", (answer_id,))[0]
     comments = execute_sql_statement("SELECT * FROM comment WHERE answer_id = %s;", (answer_id,))
 
@@ -129,6 +168,10 @@ def display_answer(answer_id):
 
 @app.route("/question/<question_id>/new-answer", methods=['GET', 'POST'])
 def post_answer(question_id):
+    '''
+    Renders the answer submission page with question and user data on GET
+    Inserts the answer data into the database on POST.
+    '''
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
         all_users = execute_sql_statement("SELECT username FROM users;")
@@ -139,28 +182,29 @@ def post_answer(question_id):
                                usernames=all_users)
 
     if request.method == 'POST':
-        filex = request.files['file']
-        if filex.filename != '':
-            if filex:
-                filex.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(filex.filename)))
-                answer_image = 'images/'+secure_filename(filex.filename)
+        image_file = request.files['file']
+        if image_file.filename != '':
+            if image_file:
+                image_file.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(image_file.filename)))
+                answer_image = 'images/'+secure_filename(image_file.filename)
         else:
             answer_image = ""
 
-        a_time = datetime.now().replace(microsecond=0)
-        a_vote_number = 0
-        a_message = str(request.form['answer_message'])
+        answer_time = datetime.now().replace(microsecond=0)
+        answer_vote_number = 0
+        answer_message = str(request.form['answer_message'])
         known_user = request.form['username']
         known_user_id = execute_sql_statement("SELECT id FROM users WHERE username=%s;", (known_user,))[0]
         execute_sql_statement("""
                        INSERT INTO answer (submission_time, vote_number, question_id, message, image, user_id)
                        VALUES (%s, %s, %s, %s, %s, %s);
-                       """, (a_time, a_vote_number, question_id, a_message, answer_image, known_user_id))
+                       """, (answer_time, answer_vote_number, question_id, answer_message, answer_image, known_user_id))
         return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/question/<int:question_id>/<int:answer_id>/del', methods=["POST"])
 def delete_answer(question_id, answer_id):
+    ''' Deletes the answer with matching id from the database. '''
     execute_sql_statement("DELETE FROM answer WHERE id= %s;", (answer_id,))
     return redirect(url_for('display_question', question_id=question_id))
 
@@ -170,6 +214,7 @@ def delete_answer(question_id, answer_id):
 ###############################################################################################################
 @app.route('/question/<int:question_id>/<int:answer_id>/<vote_direction>')
 def vote_answer(question_id, answer_id, vote_direction):
+    ''' Changes the vote number of the answer with matching id in the appropriate direction '''
     vote_module.change_vote('answer', answer_id, vote_direction)
     if vote_direction.lower() == "vote-up":
         user_id = user_module.userid_from_answer(answer_id)
@@ -184,6 +229,7 @@ def vote_answer(question_id, answer_id, vote_direction):
 
 @app.route('/question/<int:question_id>/vote/<vote_direction>')
 def vote_question(question_id, vote_direction):
+    ''' Changes the vote number of the question with matching id in the appropriate direction '''
     vote_module.change_vote('question', question_id, vote_direction)
     if vote_direction.lower() == "vote-up":
         user_id = user_module.userid_from_question(question_id)
@@ -201,11 +247,15 @@ def vote_question(question_id, vote_direction):
 ###############################################################################################################
 @app.route('/search')
 def search_results():
+    ''' Looks up the query string phrase in the database and returns matching data. '''
     search_phrase = '%'+str(request.query_string.decode('utf-8'))[2:].lower()+'%'
     search_result = execute_sql_statement("""SELECT * FROM question
                                           WHERE (LOWER(message) LIKE %s
                                           OR LOWER(title) LIKE %s);""", (search_phrase, search_phrase))
-    return render_template('list_questions.html', data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc')
+
+    users_dict = user_module.get_all_users_dict()
+    return render_template('list_questions.html',
+                           data_set=search_result, fieldnames=constants.FIELDNAMES, dir='asc', users_dict=users_dict)
 
 
 ###############################################################################################################
@@ -213,6 +263,10 @@ def search_results():
 ###############################################################################################################
 @app.route("/question/<question_id>/new-comment", methods=['GET', 'POST'])
 def post_question_comment(question_id):
+    '''
+    Renders the comment submission page with question and user data on GET
+    Inserts the comment into the database on POST
+    '''
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
         all_users = execute_sql_statement("SELECT username FROM users;")
@@ -237,6 +291,10 @@ def post_question_comment(question_id):
 
 @app.route("/answer/<int:answer_id>/new-comment", methods=['GET', 'POST'])
 def post_answer_comment(answer_id):
+    '''
+    Renders the answer submission page with user data on GET
+    Inserts the answer into the database on POST
+    '''
     answer_line = execute_sql_statement("SELECT * FROM answer WHERE id = %s;", (answer_id,))[0]
     if request.method == 'GET':
         all_users = execute_sql_statement("SELECT username FROM users;")
@@ -260,6 +318,7 @@ def post_answer_comment(answer_id):
 
 @app.route('/comments/<int:comment_id>/del', methods=["POST"])
 def delete_comment(comment_id):
+    ''' Gets a comment id as parameter, deletes the corresponding comment from the database. '''
     comment = execute_sql_statement("""SELECT * FROM comment WHERE id = %s;""", (comment_id,))[0]
 
     if comment[1] is not None:
@@ -274,6 +333,10 @@ def delete_comment(comment_id):
 
 @app.route('/comments/<int:comment_id>/edit', methods=["POST", "GET"])
 def edit_comment(comment_id):
+    '''
+    Renders the comment submission page with pre-filled data on GET
+    Updates the corresponding comment in the database.
+    '''
     comment = execute_sql_statement("""SELECT * FROM comment WHERE id=%s;""", (comment_id,))[0]
     comment_message = comment[3]
 
@@ -328,12 +391,17 @@ def edit_comment(comment_id):
 ###############################################################################################################
 @app.route('/question/<question_id>/tag/<tag_id>/delete')
 def tag_delete(question_id, tag_id):
+    ''' Deletes the tag with id=tag_id from the database and redirects to the display_question page. '''
     execute_sql_statement("DELETE FROM question_tag WHERE question_id = %s and tag_id = %s;", (question_id, tag_id))
     return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/question/<question_id>/new-tag', methods=['POST', 'GET'])
 def new_tag(question_id):
+    ''' 
+    Renders the tag submission page with question and existing tag data on GET
+    Inserts the new tag into the database on POST.
+    '''
     if request.method == 'GET':
         question_line = execute_sql_statement("SELECT * FROM question WHERE id = %s;", (question_id,))[0]
         existing_tags = execute_sql_statement("SELECT name FROM tag;")
@@ -358,13 +426,27 @@ def new_tag(question_id):
         return redirect(url_for('display_question', question_id=question_id))
 
 
+@app.route('/tags')
+def list_tags():
+    ''' Lists tags. '''
+    tags = execute_sql_statement("""SELECT tag.name, count(tag_id)
+                                    FROM question_tag JOIN tag
+                                    ON id=tag_id GROUP BY tag.name;""")
+    return render_template('display_tag_page.html',
+                           tag_list=tags)
+
+
 ###############################################################################################################
 #                                       IMAGE HANDLING                                                        #
 ###############################################################################################################
 @app.route("/delete_unused_images")
 def delete_unused_images():
+    ''' Deletes images not assigned to any answers or questions. '''
     local_images = next(os.walk(constants.UPLOAD_FOLDER))[2]
-    db_images = execute_sql_statement("SELECT image FROM question where image is not null union all SELECT image FROM answer where answer is not null")
+    db_images = execute_sql_statement("""SELECT image FROM question
+                                         WHERE image IS NOT NULL
+                                         UNION ALL SELECT image FROM answer
+                                         WHERE answer IS NOT NULL;""")
     match = []
     for i in range(len(local_images)):
         for j in range(len(db_images)):
@@ -382,18 +464,24 @@ def delete_unused_images():
 ###############################################################################################################
 @app.route('/list-users')
 def list_users():
+    ''' Gets a list of all users from the database and renders the list_users page with the data. '''
     users = user_module.get_user_list()
     return render_template('list_users.html', users=users)
 
 
 @app.route('/answer/<int:answer_id>/accept')
 def accept_answer(answer_id):
+    ''' Sets the answer with id=answer_id to accepted. '''
     question_id = answer_module.set_to_accepted(answer_id)
     return redirect(url_for('display_question', question_id=question_id))
 
 
 @app.route('/user/<user_id>')
 def display_user_page(user_id):
+    '''
+    Gets the questions, comments and answers of the user with id=user_id
+    and renders the user details page of said user.
+    '''
     user_data = execute_sql_statement("SELECT * FROM users WHERE id =  %s;", (user_id,))[0]
     user_questions = execute_sql_statement("SELECT * FROM question WHERE user_id = %s", (user_id,))
     user_comments = execute_sql_statement("SELECT * FROM comment WHERE user_id = %s", (user_id,))

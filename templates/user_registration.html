@@ -10,8 +10,8 @@
 </head>
 
 <body>
-    <form action="/registration" method="post">
-        <p><h5 style="color: white">Username:</h5><input type='text' name='user_name' minlength="10" required></p>
+    <form action="/registration" method="post" id="user-registration-form">
+        <p><h5>Username:</h5><input type='text' name='user_name' minlength="8" style="color:black"></p>
         <input class = "btn btn-default" type="submit" value="Register">        
     </form>
     <a href='/list' class = "btn btn-default">
@@ -28,6 +28,9 @@
     </a>
     <a href='/list-users' class = "btn btn-default">
       <i class="glyphicon glyphicon-globe"></i><h5>List Users</h5>
+    </a>
+    <a href='/tags' class = "btn btn-default">
+      <i class="glyphicon glyphicon-tags"></i><h5>Tags</h5>
     </a>
 </body>
 </html>

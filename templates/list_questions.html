@@ -27,6 +27,10 @@
           {% for item in line %}
             {% if loop.index==7 and item %}
             <td class="all-questions-tabledata"><img src="/static/{{item}}" style="max-width: 200px; max-height: 150px;"></td>
+            {% elif loop.index==8 %}
+            <td class="all-questions-tabledata">
+              <a href="/user/{{users_dict[item]}}" style="color:white">{{item}}</a>
+            </td>
             {% else %}
             <td class="all-questions-tabledata"> {{ item }}</td>
             {% endif %}
@@ -61,6 +65,9 @@
     </a>
     <a href='/list-users' class = "btn btn-default">
       <i class="glyphicon glyphicon-globe"></i><h5>List Users</h5>
+    </a>
+    <a href='/tags' class = "btn btn-default">
+      <i class="glyphicon glyphicon-tags"></i><h5>Tags</h5>
     </a>
     <form action="/search" method="get" enctype="multipart/form-data">
       <p class = "btn btn-default" disabled>Search Questions:</p>

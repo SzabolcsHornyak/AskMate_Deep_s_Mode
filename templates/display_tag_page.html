@@ -10,16 +10,14 @@
 </head>
 <body>
     <table class="all-questions-table">
-        <th class="all-questions-tablehead">User name</th>
-        <th class="all-questions-tablehead">Registration time</th>
-        <th class="all-questions-tablehead">Reputation</th>
-        {% for row in users %}
-            <tr> 
-                <td class="all-questions-tabledata"> <a href="/user/{{row[0]}}" style="color:white"> {{ row[1] }} </a></td>
-                {% for attribute in row[2:] %}
-                <td class="all-questions-tabledata">{{attribute}}</td>
-                {% endfor %}
-            </tr>
+        <th class="all-questions-tablehead"> tag name </th>
+        <th class="all-questions-tablehead"> tag count </th>
+        {% for tag in tag_list %}
+        <tr>
+          {% for tag_data in tag %}
+            <td class="all-questions-tabledata"> {{ tag_data }}</td>
+          {% endfor %}
+        </tr>
         {% endfor %}
     </table>
     <a href='/list' class = "btn btn-default">
