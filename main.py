@@ -46,7 +46,10 @@ def get_limited_list_of_questions():
                                         FROM question JOIN users ON (question.user_id=users.id)
                                         ORDER BY submission_time DESC
                                         LIMIT 5;""")
-    return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir='asc')
+
+    users_dict = user_module.get_all_users_dict()
+    return render_template('list_questions.html',
+                           data_set=data_set, fieldnames=constants.FIELDNAMES, dir='asc', users_dict=users_dict)
 
 
 @app.route('/list')
@@ -81,7 +84,10 @@ def get_list_of_questions():
                                                   ORDER BY %s ASC;""", (column,))
     except IndexError:
         pass
-    return render_template('list_questions.html', data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction)
+
+    users_dict = user_module.get_all_users_dict()
+    return render_template('list_questions.html',
+                           data_set=data_set, fieldnames=constants.FIELDNAMES, dir=sort_direction, users_dict=users_dict)
 
 
 ###############################################################################################################
