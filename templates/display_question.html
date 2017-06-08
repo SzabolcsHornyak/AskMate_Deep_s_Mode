@@ -18,6 +18,7 @@
   
     <table class="display-question-data">
       <tr>
+        <td>User: <a href="/user/{{line[7]}}" style="color:white">{{ question_user }}</a></td>
         <td> ID: {{ line[0] }}</td>
         <td> Submitted: {{ line[1] }}</td>
         <td> Viewed: {{ line[2] }}</td>
@@ -77,6 +78,7 @@
   <div class="display-question-comment-main col-md-8">
     <table class="display-question-data">
       <tr>
+        <td>User: <a href="/user/{{comment[6]}}" style="color:white">{{ user_dict[comment[6]] }} </a></td>
         <td> ID: {{ comment[0] }} </td>
         <td> Submitted: {{ comment[4] }} </td>
       </tr>
@@ -106,6 +108,7 @@
     <div class="display-question-answer-main">
       <table class="display-question-data">
         <tr>
+          <td>User: <a href="/user/{{answer[7]}}" style="color:white">{{ user_dict[answer[7]] }} </a></td>
           <td> ID: {{ answer[0] }} </td>
           <td> Submitted: {{ answer[1] }} </td>
           <td> Vote: {{ answer[2] }} </td>
@@ -165,6 +168,7 @@
         <div class="display-question-comment-main col-md-8">
           <table class="display-question-data">
             <tr>
+              <td>User: <a href="/user/{{comment[6]}}" style="color:white">{{ user_dict[comment[6]] }} </a></td>
               <td> ID: {{ comment[0] }} </td>
               <td> Submitted: {{ comment[4] }} </td>
             </tr>

@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 import constants
 import psycopg2
-from askmate_package.db_handling import execute_sql_statement
+from askmate_package.db_handling import execute_sql_statement, get_user_dict
 from askmate_package import vote_module, question_module, user_module, answer_module
 
 app = Flask(__name__, static_url_path='/static')
@@ -106,9 +106,11 @@ def new_question():
 @app.route('/question/<int:question_id>')
 def display_question(question_id):
     question_line = execute_sql_statement("SELECT * FROM question WHERE id =  %s;", (question_id,))[0]
+    question_user = execute_sql_statement("SELECT username FROM users WHERE id= %s;", (question_line[7],))[0][0]
     question_comments = execute_sql_statement("SELECT * FROM comment WHERE question_id = %s;", (question_id,))
     answer_data = question_module.get_question_answers_for_display(question_id)
     question_tags = question_module.get_question_tags_for_display(question_id)
+    user_dict = get_user_dict()
     return render_template('display_question.html',
                            line=question_line,
                            question_comments=question_comments,
@@ -116,7 +118,9 @@ def display_question(question_id):
                            answers=answer_data[0],
                            answer_comments=answer_data[1],
                            question_id=question_id,
-                           question_tags=question_tags)
+                           question_tags=question_tags,
+                           question_user=question_user,
+                           user_dict=user_dict)
 
 
 @app.route('/question/<int:question_id>/edit', methods=['POST', 'GET'])
