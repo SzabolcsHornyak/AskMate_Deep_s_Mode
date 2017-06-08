@@ -1,7 +1,8 @@
 body {
   margin: 2%;
+  padding: 0px 0px 600px 0px;
   background-color: #065c34;
-  font-family: 'Courier New', Courier, monospace
+  /*font-family: 'Courier New', Courier, monospace*/
 }
 
 .all-questions-table { 
@@ -135,12 +136,13 @@ body {
 }
 
 .display-question-comment-main {
-  background-color: #7c3757;
-  color:white;
-  border: 1px solid grey;
-  padding:20px;
+  background-color: #efaaca;
+  color:black;
+  border: 0px solid grey;
+  padding:5px;
+  width: 50VW;
+  margin-left: 10VW;
 }
-
 
 .question-button {
     height: 25%;
@@ -152,8 +154,10 @@ body {
   color:white;
   padding: 20px;
   margin: 10px 30px 10px 30px;
+  min-height: 205px;
 
 }
+
 
 .display-question-answer-main:hover {
     background-color: #5c062e;
@@ -169,21 +173,24 @@ body {
 
 .display-question-answer-buttons {
   margin-top: 8px;
-  margin-left: -70px;
+  margin-left: -50px;
+  padding: 2px 0px 2px 10px;
 }
 
 .display-question-bottom-buttons {
   position: fixed;
   bottom: 0;
   left: 30%;
-  margin-left: -104.5px
 }
 
 
 #accepted-answer {
   width: 75px;
   height: 75px;
-  margin-left: 800px;
+  float: right;
+  clear: right;
+  padding: 0px;
+  margin: 10px;
 }
 
 #display-user-data {
