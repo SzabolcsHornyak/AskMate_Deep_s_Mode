@@ -15,11 +15,11 @@ def get_question_tags_for_display(question_id):
 
 
 def get_question_answers_for_display(question_id):
-    questions_answer_rows = execute_sql_statement("SELECT * FROM answer WHERE question_id = %s;", (question_id,))
+    questions_answer_rows = execute_sql_statement("SELECT * FROM answer WHERE question_id = %s order by accepted desc, vote_number DESC, id;", (question_id,))
     answer_ids = [row[0] for row in questions_answer_rows]
     answer_comments = []
     for answer_id in answer_ids:
-        answer_comments.append(execute_sql_statement("SELECT * FROM comment WHERE answer_id = %s", (answer_id,)))
+        answer_comments.append(execute_sql_statement("SELECT * FROM comment WHERE answer_id = %s;", (answer_id,)))
     return (questions_answer_rows, answer_comments)
 
 
